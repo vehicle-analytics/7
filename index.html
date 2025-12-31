@@ -2,16 +2,41 @@
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🚗 Відстеження запчастин автомобілів</title>
     <meta name="description" content="Аналітична панель для відстеження обслуговування автомобілів">
+    <meta name="color-scheme" content="light">
+    <meta name="theme-color" content="#1e40af" media="(prefers-color-scheme: light)">
     <link rel="stylesheet" href="styles.css">
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        // ВИМКНЕННЯ ТЕМНОЇ ТЕМИ В TAILWIND
+        tailwind.config = {
+            darkMode: false,
+            theme: {
+                extend: {}
+            }
+        }
+    </script>
     <script src="app.js" defer></script>
     <style>
-        /* СКИДАЄМО ВСІ СИСТЕМНІ ТЕМИ */
+        /* ПРИМУСОВО ВСТАНОВЛЮЄМО СВІТЛУ ТЕМУ НА ВСІХ ПРИСТРОЯХ */
+        :root {
+            color-scheme: light;
+            -webkit-color-scheme: light;
+        }
+        
+        /* БЛОКУЄМО БУДЬ-ЯКУ ТЕМНУ ТЕМУ */
+        html, body {
+            color-scheme: light !important;
+            -webkit-color-scheme: light !important;
+            forced-color-adjust: none;
+            -webkit-forced-color-adjust: none;
+        }
+        
         * {
-            -webkit-tap-highlight-color: transparent;
+            color-scheme: light !important;
+            -webkit-color-scheme: light !important;
         }
         
         body {
@@ -20,98 +45,12 @@
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
             background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #0f172a 100%) !important;
             min-height: 100vh;
-            color: #ffffff;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
+            color: #ffffff !important;
         }
         
-        /* ЗАБОРОНА ТЕМНОЇ ТЕМИ */
-        @media (prefers-color-scheme: dark) {
-            body {
-                background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #0f172a 100%) !important;
-            }
-        }
+        /* ВИДАЛЯЄМО ВСІ МЕДІА-ЗАПИТИ ДЛЯ ТЕМНОЇ ТЕМИ */
         
-        /* МОБІЛЬНІ СТИЛІ */
-        @media (max-width: 640px) {
-            .mobile-text-sm { font-size: 13px !important; }
-            .mobile-text-xs { font-size: 11px !important; }
-            .mobile-p-2 { padding: 8px !important; }
-            .mobile-p-3 { padding: 12px !important; }
-            .mobile-gap-1 { gap: 4px !important; }
-            .mobile-gap-2 { gap: 8px !important; }
-            .mobile-hidden { display: none !important; }
-            .mobile-flex-col { flex-direction: column !important; }
-            
-            /* ПОКРАЩЕННЯ ДЛЯ МАЛИХ ЕКРАНІВ */
-            input, select, textarea, button {
-                font-size: 16px !important; /* Запобігає масштабуванню в iOS */
-            }
-            
-            /* БІЛІ КАРТКИ НА МОБІЛЬНИХ */
-            .bg-white {
-                background-color: #ffffff !important;
-                color: #1f2937 !important;
-            }
-            
-            .text-gray-800, .text-gray-700 {
-                color: #1f2937 !important;
-            }
-            
-            /* ПОЛЯ ВВОДУ */
-            input, select {
-                background-color: #ffffff !important;
-                color: #1f2937 !important;
-                border-color: #d1d5db !important;
-            }
-            
-            /* КНОПКИ */
-            button:not(.bg-blue-600):not(.bg-red-500):not(.bg-green-600) {
-                background-color: #f3f4f6 !important;
-                color: #1f2937 !important;
-            }
-        }
-        
-        /* АДАПТИВНІ РОЗМІРИ */
-        @media (max-width: 768px) {
-            .table-container {
-                margin-left: -8px;
-                margin-right: -8px;
-                padding-left: 8px;
-                padding-right: 8px;
-            }
-            
-            .card-padding {
-                padding: 12px !important;
-            }
-            
-            .text-responsive {
-                font-size: 14px !important;
-            }
-        }
-        
-        /* ПОКРАЩЕННЯ СКРОЛУ */
-        .scrollbar-thin {
-            scrollbar-width: thin;
-            scrollbar-color: #9ca3af #f3f4f6;
-        }
-        
-        .scrollbar-thin::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
-        }
-        
-        .scrollbar-thin::-webkit-scrollbar-track {
-            background: #f3f4f6;
-            border-radius: 3px;
-        }
-        
-        .scrollbar-thin::-webkit-scrollbar-thumb {
-            background: #9ca3af;
-            border-radius: 3px;
-        }
-        
-        /* АНІМАЦІЇ */
+        /* Анімації */
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
@@ -121,15 +60,115 @@
             animation: fadeIn 0.3s ease-out;
         }
         
-        /* ФІКС ДЛЯ IOS */
-        @supports (-webkit-touch-callout: none) {
-            .min-h-screen {
-                min-height: -webkit-fill-available;
-            }
+        /* Мобільні стилі */
+        @media (max-width: 768px) {
+            .mobile-text-sm { font-size: 0.875rem !important; }
+            .mobile-text-xs { font-size: 0.75rem !important; }
+            .mobile-p-2 { padding: 0.5rem !important; }
+            .mobile-p-3 { padding: 0.75rem !important; }
+            .mobile-gap-2 { gap: 0.5rem !important; }
+            .mobile-hidden { display: none !important; }
+            .mobile-stack { flex-direction: column !important; }
+        }
+        
+        /* СТАНДАРТНІ КЛАСИ TAILWIND З ФІКСОВАНИМИ КОЛЬОРАМИ */
+        .bg-white {
+            background-color: #ffffff !important;
+            color: #1f2937 !important;
+        }
+        
+        .text-gray-800 {
+            color: #1f2937 !important;
+        }
+        
+        .text-gray-700 {
+            color: #374151 !important;
+        }
+        
+        .text-gray-600 {
+            color: #4b5563 !important;
+        }
+        
+        .text-gray-500 {
+            color: #6b7280 !important;
+        }
+        
+        .text-gray-400 {
+            color: #9ca3af !important;
+        }
+        
+        .border-gray-300 {
+            border-color: #d1d5db !important;
+        }
+        
+        .border-gray-200 {
+            border-color: #e5e7eb !important;
+        }
+        
+        .bg-gray-50 {
+            background-color: #f9fafb !important;
+        }
+        
+        .bg-gray-100 {
+            background-color: #f3f4f6 !important;
+        }
+        
+        .bg-gray-200 {
+            background-color: #e5e7eb !important;
+        }
+        
+        /* Кольори статусів */
+        .bg-green-50 { background-color: #f0fdf4 !important; }
+        .bg-green-100 { background-color: #dcfce7 !important; }
+        .text-green-600 { color: #16a34a !important; }
+        .text-green-700 { color: #15803d !important; }
+        
+        .bg-orange-50 { background-color: #fff7ed !important; }
+        .bg-orange-100 { background-color: #ffedd5 !important; }
+        .text-orange-600 { color: #ea580c !important; }
+        .text-orange-700 { color: #c2410c !important; }
+        
+        .bg-red-50 { background-color: #fef2f2 !important; }
+        .bg-red-100 { background-color: #fee2e2 !important; }
+        .text-red-600 { color: #dc2626 !important; }
+        .text-red-700 { color: #b91c1c !important; }
+        
+        .bg-blue-50 { background-color: #eff6ff !important; }
+        .bg-blue-100 { background-color: #dbeafe !important; }
+        .text-blue-600 { color: #2563eb !important; }
+        .text-blue-700 { color: #1d4ed8 !important; }
+        .text-blue-800 { color: #1e40af !important; }
+        
+        /* Фікс для фільтрів міста */
+        select, select option {
+            color: #1f2937 !important;
+            background-color: white !important;
+        }
+        
+        /* Фікс для полів вводу */
+        input {
+            color: #1f2937 !important;
+            background-color: white !important;
+        }
+        
+        /* Покращення видимості */
+        .font-extrabold {
+            font-weight: 800 !important;
+        }
+        
+        /* Для зворотньої сумісності */
+        .mobile-dark-text {
+            color: #1f2937 !important;
+        }
+        
+        .mobile-dark-text input,
+        .mobile-dark-text select {
+            color: #1f2937 !important;
+            background-color: white !important;
         }
     </style>
 </head>
-<body class="scrollbar-thin">
+<body>
     <div id="app">
         <!-- Завантаження -->
         <div id="loading-screen" class="min-h-screen flex flex-col items-center justify-center p-4">
@@ -168,7 +207,7 @@
         <footer class="mt-8 py-4 text-center text-blue-200 text-sm border-t border-blue-800/30">
             <div class="max-w-7xl mx-auto px-4">
                 <p>🚗 Dondyk AutoHub • AI-панель для обслуговування авто</p>
-                <p class="mt-1 text-xs opacity-70">© 2026 • Версія 3.5 • Дані оновлюються автоматично</p>
+                <p class="mt-1 text-xs opacity-70">© 2026 • Версія 2.1 • Дані оновлюються автоматично</p>
                 <div class="mt-2 flex justify-center gap-4 text-xs">
                     <button id="refresh-data" class="px-3 py-1 bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors">
                         🔄 Оновити дані
