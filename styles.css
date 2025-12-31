@@ -133,9 +133,9 @@ html {
     }
 }
 
-/* Кастомний розмір шрифту для значень в таблиці - 12.5px */
-.text-xs-custom {
-    font-size: 0.75rem !important; /* 12.5px */
-    line-height: 1.1 !important;
+/* Оптимальний розмір для значень в таблиці */
+.text-table-value {
+    font-size: 0.75rem !important; /* 12px - стандартний text-xs */
+    line-height: 1.25 !important; /* Трошки більше міжрядкового */
+    font-weight: 600 !important; /* Напівжирний для кращої читабельності */
 }
-
