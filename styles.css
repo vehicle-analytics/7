@@ -139,6 +139,7 @@ html {
     line-height: 1.25 !important; /* Трошки більше міжрядкового */
     font-weight: 600 !important; /* Напівжирний для кращої читабельності */
 }
+
 /* Стилі для підказки прокрутки таблиці */
 .scroll-hint-container {
     position: relative;
