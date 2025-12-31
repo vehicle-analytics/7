@@ -139,3 +139,48 @@ html {
     line-height: 1.25 !important; /* Трошки більше міжрядкового */
     font-weight: 600 !important; /* Напівжирний для кращої читабельності */
 }
+/* Стилі для підказки прокрутки таблиці */
+.scroll-hint-container {
+    position: relative;
+    width: 100%;
+}
+
+.scroll-hint {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 20;
+    pointer-events: none;
+}
+
+/* Стилі для самої підказки */
+.scroll-hint-content {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(99, 102, 241, 0.15) 100%);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(96, 165, 250, 0.3);
+    border-radius: 8px;
+    padding: 6px 16px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.scroll-hint-text {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #1e40af;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+}
+
+/* Анімація для підказки */
+@keyframes subtle-pulse {
+    0%, 100% { opacity: 0.9; }
+    50% { opacity: 1; }
+}
+
+.scroll-hint-text {
+    animation: subtle-pulse 2s infinite;
+}
