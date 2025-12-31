@@ -946,7 +946,7 @@ generateCarRow(car, idx, importantParts) {
 }
 
     getPartDisplay(part, isMonths = false) {
-    if (!part) return { color: 'text-gray-400', text: '-', bg: 'bg-gray-100', textSize: 'text-xs-custom' };
+    if (!part) return { color: 'text-gray-400', text: '-', bg: 'bg-gray-100', textSize: 'text-table-value' };
 
     let color = 'text-green-600', bg = 'bg-green-100';
     if (part.status === 'warning') { color = 'text-orange-600'; bg = 'bg-orange-100'; }
@@ -956,7 +956,7 @@ generateCarRow(car, idx, importantParts) {
         Math.floor(part.daysDiff / 30) + 'міс' :
         this.formatMileageDiff(part.mileageDiff);
 
-    return { color, text, bg, textSize: 'text-xs-custom' };
+    return { color, text, bg, textSize: 'text-table-value' };
 }
 
     generateCarDetailHTML(car) {
