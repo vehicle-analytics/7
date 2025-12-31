@@ -132,3 +132,53 @@ html {
         background-color: white !important;
     }
 }
+/* Покращення горизонтальної прокрутки */
+.overflow-x-auto {
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e1 #f1f5f9;
+}
+
+.overflow-x-auto::-webkit-scrollbar {
+    height: 8px;
+}
+
+.overflow-x-auto::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 4px;
+}
+
+.overflow-x-auto::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 4px;
+}
+
+.overflow-x-auto::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+/* Анімація для підказки про прокрутку */
+@keyframes bounceRight {
+    0%, 100% {
+        transform: translateX(0);
+    }
+    50% {
+        transform: translateX(10px);
+    }
+}
+
+.animate-pulse {
+    animation: bounceRight 2s infinite;
+}
+
+/* Адаптивність для мобільних */
+@media (max-width: 768px) {
+    .overflow-x-auto::-webkit-scrollbar {
+        height: 6px;
+    }
+    
+    /* Сховуємо підказку на мобільних */
+    .absolute.top-0.left-0.right-0 {
+        display: none;
+    }
+}
