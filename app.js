@@ -795,38 +795,27 @@ class CarAnalyticsApp {
     const tableRows = cars.map((car, idx) => this.generateCarRow(car, idx, importantParts)).join('');
 
     return `
-        <div class="relative">
-            <div class="absolute top-0 left-0 right-0 h-full flex items-center justify-center pointer-events-none z-10">
-                <div class="bg-gradient-to-r from-transparent via-white/50 to-transparent px-4 py-2 rounded-lg">
-                    <div class="text-xs text-gray-600 flex items-center gap-2 animate-pulse">
-                        <span>↔️</span>
-                        <span>Гортай таблицю вправо</span>
-                        <span>→</span>
-                    </div>
-                </div>
-            </div>
-            <div class="overflow-x-auto w-full relative z-0">
-                <table class="w-full min-w-[1100px]">
-                    <thead class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white">
-                        <tr>
-                            <th class="px-2 py-2 text-left text-xs font-bold uppercase w-[40px]">Статус</th>
-                            <th class="px-2 py-2 text-left text-xs font-bold uppercase w-[90px]">Номер</th>
-                            <th class="px-2 py-2 text-left text-xs font-bold uppercase mobile-hidden w-[120px]">Модель</th>
-                            <th class="px-2 py-2 text-left text-xs font-bold uppercase mobile-hidden w-[50px]">Рік</th>
-                            <th class="px-2 py-2 text-left text-xs font-bold uppercase w-[80px]">Місто</th>
-                            <th class="px-2 py-2 text-left text-xs font-bold uppercase w-[80px]">Пробіг</th>
-                            ${tableHeaders}
-                            <th class="px-1 py-2 text-center text-xs font-bold uppercase mobile-hidden w-[50px]">✅</th>
-                            <th class="px-1 py-2 text-center text-xs font-bold uppercase mobile-hidden w-[50px]">⚠️</th>
-                            <th class="px-1 py-2 text-center text-xs font-bold uppercase mobile-hidden w-[50px]">⛔</th>
-                            <th class="px-1 py-2 text-center text-xs font-bold uppercase w-[50px]">📋</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-gray-200">
-                        ${tableRows}
-                    </tbody>
-                </table>
-            </div>
+        <div class="overflow-x-auto w-full">
+            <table class="w-full min-w-[1150px]">
+                <thead class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white">
+                    <tr>
+                        <th class="px-2 py-2 text-left text-xs font-bold uppercase">Статус</th>
+                        <th class="px-2 py-2 text-left text-xs font-bold uppercase">Номер</th>
+                        <th class="px-2 py-2 text-left text-xs font-bold uppercase mobile-hidden">Модель</th>
+                        <th class="px-2 py-2 text-left text-xs font-bold uppercase mobile-hidden">Рік</th>
+                        <th class="px-2 py-2 text-left text-xs font-bold uppercase">Місто</th>
+                        <th class="px-2 py-2 text-left text-xs font-bold uppercase">Пробіг</th>
+                        ${tableHeaders}
+                        <th class="px-1 py-2 text-center text-xs font-bold uppercase mobile-hidden">✅</th>
+                        <th class="px-1 py-2 text-center text-xs font-bold uppercase mobile-hidden">⚠️</th>
+                        <th class="px-1 py-2 text-center text-xs font-bold uppercase mobile-hidden">⛔</th>
+                        <th class="px-1 py-2 text-center text-xs font-bold uppercase">📋</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                    ${tableRows}
+                </tbody>
+            </table>
         </div>
     `;
 }
