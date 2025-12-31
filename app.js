@@ -1,6 +1,6 @@
 /**
  * 🚗 Аналітична панель відстеження запчастин
- * Версія 3.3 - Виправлення відображення для мобільних
+ * Версія 3.5 - Оптимізація для мобільних пристроїв
  */
 
 class CarAnalyticsApp {
@@ -438,7 +438,7 @@ class CarAnalyticsApp {
 
     renderNoData() {
         const html = `
-            <div class="min-h-screen flex flex-col items-center justify-center p-4">
+            <div class="min-h-screen flex flex-col items-center justify-center p-4 bg-gray-900">
                 <div class="text-center max-w-md">
                     <div class="text-4xl mb-4">🚫</div>
                     <h1 class="text-2xl font-bold text-white mb-2">Немає даних</h1>
@@ -662,7 +662,7 @@ class CarAnalyticsApp {
         const importantParts = CONSTANTS.PARTS_ORDER.slice(0, 7);
 
         return `
-            <div class="min-h-screen">
+            <div class="min-h-screen bg-gray-50">
                 <div class="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-b-xl shadow-xl p-4 mb-6">
                     <div class="w-full px-2 sm:px-4">
                         <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
@@ -679,20 +679,20 @@ class CarAnalyticsApp {
                     </div>
                 </div>
 
-                <div class="w-full px-2 sm:px-4">
+                <div class="w-full px-3 sm:px-4">
                     <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
                         ${this.generateStatsCards(stats)}
                     </div>
 
-                    <div class="bg-white rounded-xl shadow-lg p-4 mb-4">
+                    <div class="bg-white rounded-xl shadow-lg p-4 mb-4 border border-gray-200">
                         ${this.generateFiltersHTML(cities)}
                     </div>
 
-                    <div class="bg-white rounded-xl shadow-xl overflow-hidden w-full">
+                    <div class="bg-white rounded-xl shadow-xl overflow-hidden border border-gray-200">
                         ${this.generateCarsTable(filteredCars, importantParts)}
                     </div>
 
-                    <div class="mt-4 bg-white rounded-xl shadow-lg p-4">
+                    <div class="mt-4 bg-white rounded-xl shadow-lg p-4 border border-gray-200">
                         <h3 class="font-bold text-gray-800 mb-2 text-sm">📊 Легенда</h3>
                         <div class="flex flex-wrap gap-4 text-xs">
                             <div class="flex items-center gap-2"><div class="w-4 h-4 bg-green-500 rounded-full"></div><span>Норма</span></div>
@@ -717,16 +717,16 @@ class CarAnalyticsApp {
         ];
 
         return cards.map(card => `
-            <div class="bg-gradient-to-br ${card.color} rounded-lg shadow-lg p-4 text-white cursor-pointer hover:shadow-xl transition-all ${selectedStatus === card.status ? 'ring-2 ring-blue-300' : ''}"
+            <div class="bg-gradient-to-br ${card.color} rounded-lg shadow-lg p-3 sm:p-4 text-white cursor-pointer hover:shadow-xl transition-all ${selectedStatus === card.status ? 'ring-2 ring-blue-300' : ''}"
                  onclick="app.setState({ selectedStatus: '${card.status}' }); app.render();">
                 <div class="flex items-center justify-between">
                     <div>
-                        <div class="text-2xl sm:text-3xl font-bold mb-1">${card.count}</div>
-                        <div class="text-white/90 text-sm font-medium">${card.label}</div>
+                        <div class="text-xl sm:text-2xl font-bold mb-1">${card.count}</div>
+                        <div class="text-white/90 text-xs sm:text-sm font-medium">${card.label}</div>
                     </div>
-                    <div class="text-2xl">${card.icon}</div>
+                    <div class="text-xl sm:text-2xl">${card.icon}</div>
                 </div>
-                ${selectedStatus === card.status ? '<div class="text-xs text-white/70 mt-2">● Активний</div>' : ''}
+                ${selectedStatus === card.status ? '<div class="text-xs text-white/70 mt-1 sm:mt-2">● Активний</div>' : ''}
             </div>
         `).join('');
     }
@@ -752,22 +752,22 @@ class CarAnalyticsApp {
                         value="${searchTerm}"
                         oninput="app.debouncedSearch(this.value)"
                         placeholder="Номер, модель, місто..."
-                        class="w-full px-3 py-2 text-sm border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 mobile-dark-text"
+                        class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-800"
                         id="mainSearchInput"
                     >
                 </div>
                 <div>
                     <label class="block text-xs font-medium text-gray-700 mb-1">Місто</label>
                     <select onchange="app.setState({ selectedCity: this.value }); app.render();"
-                            class="w-full px-3 py-2 text-sm border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 mobile-dark-text">
+                            class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-800">
                         ${cities.map(city => `
-                            <option value="${city}" ${city === selectedCity ? 'selected' : ''} class="text-gray-800">${city}</option>
+                            <option value="${city}" ${city === selectedCity ? 'selected' : ''} class="text-gray-800 bg-white">${city}</option>
                         `).join('')}
                     </select>
                 </div>
             </div>
             ${selectedPartFilter ? `
-                <div class="mt-3 p-3 bg-blue-50 border-2 border-blue-300 rounded-lg">
+                <div class="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
                     <div class="text-sm font-semibold text-blue-800 flex items-center gap-2">
                         <span>📌</span>
                         <span>Активний фільтр: ${selectedPartFilter.partName} -
@@ -796,20 +796,20 @@ class CarAnalyticsApp {
 
         return `
             <div class="overflow-x-auto w-full">
-                <table class="w-full min-w-[1000px]">
+                <table class="w-full min-w-[800px]">
                     <thead class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white">
                         <tr>
-                            <th class="px-3 py-3 text-left text-xs font-bold uppercase">Статус</th>
-                            <th class="px-3 py-3 text-left text-xs font-bold uppercase">Номер</th>
-                            <th class="px-3 py-3 text-left text-xs font-bold uppercase mobile-hidden">Модель</th>
-                            <th class="px-3 py-3 text-left text-xs font-bold uppercase mobile-hidden">Рік</th>
-                            <th class="px-3 py-3 text-left text-xs font-bold uppercase">Місто</th>
-                            <th class="px-3 py-3 text-left text-xs font-bold uppercase">Пробіг</th>
+                            <th class="px-2 sm:px-3 py-2 sm:py-3 text-left text-xs font-bold uppercase">Статус</th>
+                            <th class="px-2 sm:px-3 py-2 sm:py-3 text-left text-xs font-bold uppercase">Номер</th>
+                            <th class="px-2 sm:px-3 py-2 sm:py-3 text-left text-xs font-bold uppercase hidden sm:table-cell">Модель</th>
+                            <th class="px-2 sm:px-3 py-2 sm:py-3 text-left text-xs font-bold uppercase hidden sm:table-cell">Рік</th>
+                            <th class="px-2 sm:px-3 py-2 sm:py-3 text-left text-xs font-bold uppercase">Місто</th>
+                            <th class="px-2 sm:px-3 py-2 sm:py-3 text-left text-xs font-bold uppercase">Пробіг</th>
                             ${tableHeaders}
-                            <th class="px-3 py-3 text-center text-xs font-bold uppercase mobile-hidden">✅</th>
-                            <th class="px-3 py-3 text-center text-xs font-bold uppercase mobile-hidden">⚠️</th>
-                            <th class="px-3 py-3 text-center text-xs font-bold uppercase mobile-hidden">⛔</th>
-                            <th class="px-3 py-3 text-center text-xs font-bold uppercase">📋</th>
+                            <th class="px-2 sm:px-3 py-2 sm:py-3 text-center text-xs font-bold uppercase hidden sm:table-cell">✅</th>
+                            <th class="px-2 sm:px-3 py-2 sm:py-3 text-center text-xs font-bold uppercase hidden sm:table-cell">⚠️</th>
+                            <th class="px-2 sm:px-3 py-2 sm:py-3 text-center text-xs font-bold uppercase hidden sm:table-cell">⛔</th>
+                            <th class="px-2 sm:px-3 py-2 sm:py-3 text-center text-xs font-bold uppercase">📋</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-200">
@@ -851,10 +851,10 @@ class CarAnalyticsApp {
             }
 
             return `
-                <th class="px-2 py-2 text-center text-xs font-bold uppercase">
+                <th class="px-1 sm:px-2 py-1 sm:py-2 text-center text-xs font-bold uppercase">
                     <div class="cursor-pointer hover:bg-white/10 p-1 rounded"
                          onclick="event.stopPropagation(); app.showPartFilterMenu(event, '${partName}')">
-                        <div class="font-bold">${shortName}</div>
+                        <div class="font-bold text-xs">${shortName}</div>
                         <div class="text-xs opacity-70">${emoji}</div>
                     </div>
                 </th>
@@ -870,59 +870,58 @@ class CarAnalyticsApp {
 
         const statusColor = criticalCount > 0 ? 'bg-red-500' : warningCount > 0 ? 'bg-orange-500' : 'bg-green-500';
         
-        // Виправлення: Використовуємо стандартні класи для правильного кольору фону
         const rowBg = idx % 2 === 0 ? 'bg-gray-50' : 'bg-white';
 
         const partCells = importantParts.map(partName => {
             const part = car.parts[partName];
             const isMonths = partName.includes('Діагностика') || partName.includes('Розвал') || partName.includes('Профілактика');
             const display = this.getPartDisplay(part, isMonths);
-            return `<td class="px-2 py-3 text-center"><div class="${display.bg} ${display.color} font-semibold text-xs py-1 px-2 rounded whitespace-nowrap overflow-hidden text-ellipsis max-w-[80px]">${display.text}</div></td>`;
+            return `<td class="px-1 sm:px-2 py-2 sm:py-3 text-center"><div class="${display.bg} ${display.color} font-semibold text-xs py-1 px-1 sm:px-2 rounded whitespace-nowrap overflow-hidden text-ellipsis max-w-[70px] sm:max-w-[80px]">${display.text}</div></td>`;
         }).join('');
 
         return `
-            <tr class="${rowBg} hover:bg-blue-50 cursor-pointer transition-colors mobile-dark-row"
+            <tr class="${rowBg} hover:bg-blue-50 cursor-pointer transition-colors"
                 onclick="app.setState({ selectedCar: '${car.car}' }); app.render();">
-                <td class="px-3 py-3"><div class="${statusColor} w-3 h-3 rounded-full"></div></td>
-                <td class="px-3 py-3">
-                    <div class="font-bold text-gray-800 whitespace-nowrap overflow-hidden text-ellipsis max-w-[120px]"
+                <td class="px-2 sm:px-3 py-2 sm:py-3"><div class="${statusColor} w-3 h-3 rounded-full"></div></td>
+                <td class="px-2 sm:px-3 py-2 sm:py-3">
+                    <div class="font-bold text-gray-800 text-sm whitespace-nowrap overflow-hidden text-ellipsis max-w-[100px] sm:max-w-[120px]"
                          title="${car.license}">${car.license}</div>
                 </td>
-                <td class="px-3 py-3 mobile-hidden">
+                <td class="px-2 sm:px-3 py-2 sm:py-3 hidden sm:table-cell">
                     <div class="text-gray-700 text-sm whitespace-nowrap overflow-hidden text-ellipsis max-w-[150px]"
                          title="${car.model}">${car.model}</div>
                 </td>
-                <td class="px-3 py-3 mobile-hidden">
+                <td class="px-2 sm:px-3 py-2 sm:py-3 hidden sm:table-cell">
                     <div class="text-gray-600 text-sm whitespace-nowrap">${car.year || '-'}</div>
                 </td>
-                <td class="px-3 py-3">
+                <td class="px-2 sm:px-3 py-2 sm:py-3">
                     <div class="text-gray-700 text-sm whitespace-nowrap flex items-center gap-1">
-                        <span>📍</span>
+                        <span class="text-xs">📍</span>
                         <span class="font-medium">${car.city || '-'}</span>
                     </div>
                 </td>
-                <td class="px-3 py-3">
-                    <div class="font-semibold text-gray-800 whitespace-nowrap overflow-hidden text-ellipsis max-w-[120px]">
+                <td class="px-2 sm:px-3 py-2 sm:py-3">
+                    <div class="font-semibold text-gray-800 text-sm whitespace-nowrap overflow-hidden text-ellipsis max-w-[100px] sm:max-w-[120px]">
                         ${this.formatMileage(car.currentMileage)}
                     </div>
                 </td>
                 ${partCells}
-                <td class="px-3 py-3 text-center mobile-hidden">
-                    <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-green-100 text-green-700 font-bold text-sm">
+                <td class="px-2 sm:px-3 py-2 sm:py-3 text-center hidden sm:table-cell">
+                    <span class="inline-flex items-center justify-center w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-green-100 text-green-700 font-bold text-xs sm:text-sm">
                         ${goodCount}
                     </span>
                 </td>
-                <td class="px-3 py-3 text-center mobile-hidden">
-                    <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-orange-100 text-orange-700 font-bold text-sm">
+                <td class="px-2 sm:px-3 py-2 sm:py-3 text-center hidden sm:table-cell">
+                    <span class="inline-flex items-center justify-center w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-orange-100 text-orange-700 font-bold text-xs sm:text-sm">
                         ${warningCount}
                     </span>
                 </td>
-                <td class="px-3 py-3 text-center mobile-hidden">
-                    <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-red-100 text-red-700 font-bold text-sm">
+                <td class="px-2 sm:px-3 py-2 sm:py-3 text-center hidden sm:table-cell">
+                    <span class="inline-flex items-center justify-center w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-red-100 text-red-700 font-bold text-xs sm:text-sm">
                         ${criticalCount}
                     </span>
                 </td>
-                <td class="px-3 py-3 text-center">
+                <td class="px-2 sm:px-3 py-2 sm:py-3 text-center">
                     <div class="text-blue-600 font-semibold text-sm whitespace-nowrap">
                         ${car.history.length}
                     </div>
@@ -946,56 +945,56 @@ class CarAnalyticsApp {
     }
 
     generateCarDetailHTML(car) {
-    const { selectedHistoryPartFilter, historySearchTerm } = this.state;
-    const displayHistory = this.filterCarHistory(car.history, selectedHistoryPartFilter, historySearchTerm);
-    const partNames = CONSTANTS.PARTS_ORDER;
+        const { selectedHistoryPartFilter, historySearchTerm } = this.state;
+        const displayHistory = this.filterCarHistory(car.history, selectedHistoryPartFilter, historySearchTerm);
+        const partNames = CONSTANTS.PARTS_ORDER;
 
-    return `
-        <div class="min-h-screen">
-            <!-- Фіксована верхня панель -->
-            <div class="sticky top-0 z-40 bg-gradient-to-b from-slate-900 via-blue-900/90 to-slate-900/90 backdrop-blur-sm border-b border-blue-700/30">
-                <div class="px-2 sm:px-4 py-3">
-                    <button onclick="app.setState({ selectedCar: null, selectedHistoryPartFilter: null, historySearchTerm: '' });"
-                            class="bg-white hover:bg-gray-100 text-blue-600 font-semibold px-4 py-2 rounded-lg shadow-lg transition-all flex items-center gap-2 mb-3">
-                        ← Назад до списку
-                    </button>
-                    <div class="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl shadow-2xl p-4">
-                        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                            <div class="flex items-center gap-3">
-                                <div class="bg-white/20 p-3 rounded-xl text-3xl">🚗</div>
-                                <div>
-                                    <div class="text-white text-xl font-bold">${car.license}</div>
-                                    <div class="text-blue-100 text-base">${car.model || 'Немає моделі'}</div>
-                                    <div class="text-blue-200 text-xs mt-1">
-                                        ${car.year ? car.year + ' рік' : ''}
-                                        ${car.year && car.city ? ' • ' : ''}
-                                        ${car.city || ''}
+        return `
+            <div class="min-h-screen bg-gray-50">
+                <!-- Фіксована верхня панель -->
+                <div class="sticky top-0 z-40 bg-gradient-to-b from-slate-900 via-blue-900/90 to-slate-900/90 backdrop-blur-sm border-b border-blue-700/30">
+                    <div class="px-3 sm:px-4 py-3">
+                        <button onclick="app.setState({ selectedCar: null, selectedHistoryPartFilter: null, historySearchTerm: '' });"
+                                class="bg-white hover:bg-gray-100 text-blue-600 font-semibold px-3 sm:px-4 py-2 rounded-lg shadow-lg transition-all flex items-center gap-2 mb-3">
+                            ← Назад до списку
+                        </button>
+                        <div class="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl shadow-2xl p-4">
+                            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
+                                <div class="flex items-center gap-3">
+                                    <div class="bg-white/20 p-2 sm:p-3 rounded-xl text-2xl sm:text-3xl">🚗</div>
+                                    <div>
+                                        <div class="text-white text-lg sm:text-xl font-bold">${car.license}</div>
+                                        <div class="text-blue-100 text-sm sm:text-base">${car.model || 'Немає моделі'}</div>
+                                        <div class="text-blue-200 text-xs mt-1">
+                                            ${car.year ? car.year + ' рік' : ''}
+                                            ${car.year && car.city ? ' • ' : ''}
+                                            ${car.city || ''}
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="text-left sm:text-right">
-                                <div class="text-blue-100 text-xs">Поточний пробіг</div>
-                                <div class="text-white text-xl font-bold">${this.formatMileage(car.currentMileage)}</div>
-                                <div class="text-blue-200 text-xs mt-1">📋 ${car.history.length} записів в історії</div>
+                                <div class="text-left sm:text-right mt-2 sm:mt-0">
+                                    <div class="text-blue-100 text-xs">Поточний пробіг</div>
+                                    <div class="text-white text-lg sm:text-xl font-bold">${this.formatMileage(car.currentMileage)}</div>
+                                    <div class="text-blue-200 text-xs mt-1">📋 ${car.history.length} записів в історії</div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Основний вміст з прокруткою -->
-            <div class="w-full px-2 sm:px-4 pt-4">
-                <div class="bg-white rounded-xl shadow-xl p-3 mb-4 mobile-dark-text">
-                    ${this.generateCarPartsHTML(car, partNames)}
-                </div>
+                <!-- Основний вміст з прокруткою -->
+                <div class="w-full px-3 sm:px-4 pt-4">
+                    <div class="bg-white rounded-xl shadow-xl p-3 sm:p-4 mb-4 border border-gray-200">
+                        ${this.generateCarPartsHTML(car, partNames)}
+                    </div>
 
-                <div class="bg-white rounded-xl shadow-xl p-3 mobile-dark-text">
-                    ${this.generateCarHistoryHTML(car, displayHistory)}
+                    <div class="bg-white rounded-xl shadow-xl p-3 sm:p-4 border border-gray-200">
+                        ${this.generateCarHistoryHTML(car, displayHistory)}
+                    </div>
                 </div>
             </div>
-        </div>
-    `;
-}
+        `;
+    }
 
     generateCarPartsHTML(car, partNames) {
         const importantParts = partNames.slice(0, 8);
@@ -1061,16 +1060,16 @@ class CarAnalyticsApp {
                     <div class="${small ? 'space-y-0.5' : 'space-y-1'}">
                         <div class="flex justify-between items-center">
                             <div class="text-xs text-gray-700 font-bold">📅 Дата:</div>
-                            <div class="font-extrabold text-gray-900 text-sm">${formattedDate}</div>
+                            <div class="font-extrabold text-gray-900 text-xs sm:text-sm">${formattedDate}</div>
                         </div>
                         <div class="text-center my-1">
-                            <div class="${small ? 'text-base' : 'text-xl'} font-extrabold ${textClass}">
+                            <div class="${small ? 'text-sm sm:text-base' : 'text-lg sm:text-xl'} font-extrabold ${textClass}">
                                 ${this.formatMileageDiff(part.mileageDiff)}
                             </div>
                         </div>
                         <div class="flex justify-between items-center">
                             <div class="text-xs text-gray-700 font-bold">⏰ Час:</div>
-                            <div class="text-sm font-extrabold text-gray-900">${part.timeDiff}</div>
+                            <div class="text-xs sm:text-sm font-extrabold text-gray-900">${part.timeDiff}</div>
                         </div>
                     </div>
                 ` : '<div class="text-gray-300 text-xs text-center py-2">Немає даних</div>'}
@@ -1113,7 +1112,7 @@ class CarAnalyticsApp {
                         value="${this.state.historySearchTerm}"
                         oninput="app.debouncedHistorySearch(this.value)"
                         placeholder="Пошук за текстом, датою або пробігом..."
-                        class="flex-1 px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500 mobile-dark-text"
+                        class="flex-1 px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-800"
                         id="historySearchInput"
                     >
                     ${this.state.historySearchTerm ? `
@@ -1187,13 +1186,13 @@ class CarAnalyticsApp {
         const unitDisplay = record.unit ? record.unit : (record.quantity > 0 ? 'шт.' : '');
 
         return `
-            <div class="bg-gray-50 hover:bg-gray-100 rounded-lg p-4 border border-gray-200 transition-all hover:shadow-sm">
+            <div class="bg-gray-50 hover:bg-gray-100 rounded-lg p-3 sm:p-4 border border-gray-200 transition-all hover:shadow-sm">
                 <div class="flex items-center justify-between mb-2">
                     <div class="flex items-center gap-2">
                         <span class="text-base">📅</span>
                         <span class="font-bold text-gray-800 text-sm">${formattedDate}</span>
                     </div>
-                    <div class="flex items-center gap-2 bg-orange-50 px-3 py-1 rounded-full">
+                    <div class="flex items-center gap-2 bg-orange-50 px-2 sm:px-3 py-1 rounded-full">
                         <span class="text-sm">🛣️</span>
                         <span class="font-bold text-orange-700 text-sm">${formattedMileage}</span>
                     </div>
@@ -1239,10 +1238,10 @@ class CarAnalyticsApp {
                     </div>
 
                     ${record.status ? `
-                        <div class="${statusClass} px-3 py-1 rounded text-xs font-medium whitespace-nowrap mt-2 sm:mt-0 self-start">
+                        <div class="${statusClass} px-2 sm:px-3 py-1 rounded text-xs font-medium whitespace-nowrap mt-2 sm:mt-0 self-start">
                             ${statusIcon} ${record.status}
                         </div>
-                ` : ''}
+                    ` : ''}
                 </div>
             </div>
         `;
