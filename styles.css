@@ -144,11 +144,12 @@ html {
 .scroll-hint-container {
     position: relative;
     width: 100%;
+    padding-bottom: 40px; /* Додаємо простір для підказки внизу */
 }
 
 .scroll-hint {
     position: absolute;
-    bottom: 10px;
+    bottom: -30px; /* Змінити з 10px на від'ємне значення, щоб вийти за межі контейнера */
     left: 50%;
     transform: translateX(-50%);
     z-index: 20;
@@ -184,4 +185,9 @@ html {
 
 .scroll-hint-text {
     animation: subtle-pulse 2s infinite;
+}
+
+/* Додатковий відступ для таблиці, щоб підказка не накладалася */
+.table-with-scroll-hint {
+    margin-bottom: 10px;
 }
