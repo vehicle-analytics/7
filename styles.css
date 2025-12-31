@@ -135,7 +135,7 @@ html {
 
 /* Кастомний розмір шрифту для значень в таблиці - 12.5px */
 .text-xs-custom {
-    font-size: 0.78125rem !important; /* 12.5px */
+    font-size: 0.75rem !important; /* 12.5px */
     line-height: 1.1 !important;
 }
 
