@@ -132,7 +132,7 @@ html {
         background-color: white !important;
     }
 }/* Кастомний розмір шрифту для значень в таблиці */
-.text-13px {
-    font-size: 0.8125rem !important; /* 13px */
+.text-12.5px {
+    font-size: 0.78125rem !important; /* 12.5px */
 }
 
