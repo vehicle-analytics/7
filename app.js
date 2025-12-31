@@ -781,35 +781,45 @@ class CarAnalyticsApp {
     }
 
     generateCarsTable(cars, importantParts) {
-        if (cars.length === 0) {
-            return `
-                <div class="px-4 py-12 text-center">
-                    <div class="text-gray-400 text-lg mb-2">🚫</div>
-                    <div class="text-gray-600 font-medium">Автомобілів не знайдено</div>
-                    <div class="text-gray-400 text-sm mt-1">Спробуйте змінити параметри пошуку</div>
-                </div>
-            `;
-        }
-
-        const tableHeaders = this.generateTableHeaders(importantParts);
-        const tableRows = cars.map((car, idx) => this.generateCarRow(car, idx, importantParts)).join('');
-
+    if (cars.length === 0) {
         return `
-            <div class="overflow-x-auto w-full">
-                <table class="w-full min-w-[800px]">
+            <div class="px-4 py-12 text-center">
+                <div class="text-gray-400 text-lg mb-2">🚫</div>
+                <div class="text-gray-600 font-medium">Автомобілів не знайдено</div>
+                <div class="text-gray-400 text-sm mt-1">Спробуйте змінити параметри пошуку</div>
+            </div>
+        `;
+    }
+
+    const tableHeaders = this.generateTableHeaders(importantParts);
+    const tableRows = cars.map((car, idx) => this.generateCarRow(car, idx, importantParts)).join('');
+
+    return `
+        <div class="relative">
+            <div class="absolute top-0 left-0 right-0 h-full flex items-center justify-center pointer-events-none z-10">
+                <div class="bg-gradient-to-r from-transparent via-white/50 to-transparent px-4 py-2 rounded-lg">
+                    <div class="text-xs text-gray-600 flex items-center gap-2 animate-pulse">
+                        <span>↔️</span>
+                        <span>Гортай таблицю вправо</span>
+                        <span>→</span>
+                    </div>
+                </div>
+            </div>
+            <div class="overflow-x-auto w-full relative z-0">
+                <table class="w-full min-w-[1100px]">
                     <thead class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white">
                         <tr>
-                            <th class="px-2 sm:px-3 py-2 sm:py-3 text-left text-xs font-bold uppercase">Статус</th>
-                            <th class="px-2 sm:px-3 py-2 sm:py-3 text-left text-xs font-bold uppercase">Номер</th>
-                            <th class="px-2 sm:px-3 py-2 sm:py-3 text-left text-xs font-bold uppercase hidden sm:table-cell">Модель</th>
-                            <th class="px-2 sm:px-3 py-2 sm:py-3 text-left text-xs font-bold uppercase hidden sm:table-cell">Рік</th>
-                            <th class="px-2 sm:px-3 py-2 sm:py-3 text-left text-xs font-bold uppercase">Місто</th>
-                            <th class="px-2 sm:px-3 py-2 sm:py-3 text-left text-xs font-bold uppercase">Пробіг</th>
+                            <th class="px-2 py-2 text-left text-xs font-bold uppercase w-[40px]">Статус</th>
+                            <th class="px-2 py-2 text-left text-xs font-bold uppercase w-[90px]">Номер</th>
+                            <th class="px-2 py-2 text-left text-xs font-bold uppercase mobile-hidden w-[120px]">Модель</th>
+                            <th class="px-2 py-2 text-left text-xs font-bold uppercase mobile-hidden w-[50px]">Рік</th>
+                            <th class="px-2 py-2 text-left text-xs font-bold uppercase w-[80px]">Місто</th>
+                            <th class="px-2 py-2 text-left text-xs font-bold uppercase w-[80px]">Пробіг</th>
                             ${tableHeaders}
-                            <th class="px-2 sm:px-3 py-2 sm:py-3 text-center text-xs font-bold uppercase hidden sm:table-cell">✅</th>
-                            <th class="px-2 sm:px-3 py-2 sm:py-3 text-center text-xs font-bold uppercase hidden sm:table-cell">⚠️</th>
-                            <th class="px-2 sm:px-3 py-2 sm:py-3 text-center text-xs font-bold uppercase hidden sm:table-cell">⛔</th>
-                            <th class="px-2 sm:px-3 py-2 sm:py-3 text-center text-xs font-bold uppercase">📋</th>
+                            <th class="px-1 py-2 text-center text-xs font-bold uppercase mobile-hidden w-[50px]">✅</th>
+                            <th class="px-1 py-2 text-center text-xs font-bold uppercase mobile-hidden w-[50px]">⚠️</th>
+                            <th class="px-1 py-2 text-center text-xs font-bold uppercase mobile-hidden w-[50px]">⛔</th>
+                            <th class="px-1 py-2 text-center text-xs font-bold uppercase w-[50px]">📋</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-200">
@@ -817,118 +827,123 @@ class CarAnalyticsApp {
                     </tbody>
                 </table>
             </div>
-        `;
-    }
+        </div>
+    `;
+}
 
-    generateTableHeaders(importantParts) {
-        return importantParts.map(partName => {
-            let shortName, emoji;
+generateTableHeaders(importantParts) {
+    return importantParts.map(partName => {
+        let shortName, emoji;
 
-            if (partName.includes('ТО')) {
-                shortName = 'ТО';
-                emoji = '🛢️';
-            } else if (partName.includes('ГРМ')) {
-                shortName = 'ГРМ';
-                emoji = '⚙️';
-            } else if (partName.includes('Помпа')) {
-                shortName = 'Помпа';
-                emoji = '💧';
-            } else if (partName.includes('Обвід')) {
-                shortName = 'Обвід';
-                emoji = '🔧';
-            } else if (partName.includes('Діагн')) {
-                shortName = 'Діаг';
-                emoji = '🔍';
-            } else if (partName.includes('Розвал')) {
-                shortName = 'Розв';
-                emoji = '📐';
-            } else if (partName.includes('Профілактика') || partName.includes('Супорт')) {
-                shortName = 'Супорт';
-                emoji = '🛠️';
-            } else {
-                shortName = partName.split(' ')[0];
-                emoji = '🔧';
-            }
-
-            return `
-                <th class="px-1 sm:px-2 py-1 sm:py-2 text-center text-xs font-bold uppercase">
-                    <div class="cursor-pointer hover:bg-white/10 p-1 rounded"
-                         onclick="event.stopPropagation(); app.showPartFilterMenu(event, '${partName}')">
-                        <div class="font-bold text-xs">${shortName}</div>
-                        <div class="text-xs opacity-70">${emoji}</div>
-                    </div>
-                </th>
-            `;
-        }).join('');
-    }
-
-    generateCarRow(car, idx, importantParts) {
-        const parts = Object.values(car.parts).filter(p => p !== null);
-        const criticalCount = parts.filter(p => p.status === 'critical').length;
-        const warningCount = parts.filter(p => p.status === 'warning').length;
-        const goodCount = parts.filter(p => p.status === 'good').length;
-
-        const statusColor = criticalCount > 0 ? 'bg-red-500' : warningCount > 0 ? 'bg-orange-500' : 'bg-green-500';
-        
-        const rowBg = idx % 2 === 0 ? 'bg-gray-50' : 'bg-white';
-
-        const partCells = importantParts.map(partName => {
-            const part = car.parts[partName];
-            const isMonths = partName.includes('Діагностика') || partName.includes('Розвал') || partName.includes('Профілактика');
-            const display = this.getPartDisplay(part, isMonths);
-            return `<td class="px-1 sm:px-2 py-2 sm:py-3 text-center"><div class="${display.bg} ${display.color} font-semibold text-xs py-1 px-1 sm:px-2 rounded whitespace-nowrap overflow-hidden text-ellipsis max-w-[70px] sm:max-w-[80px]">${display.text}</div></td>`;
-        }).join('');
+        if (partName.includes('ТО')) {
+            shortName = 'ТО';
+            emoji = '🛢️';
+        } else if (partName.includes('ГРМ')) {
+            shortName = 'ГРМ';
+            emoji = '⚙️';
+        } else if (partName.includes('Помпа')) {
+            shortName = 'Помпа';
+            emoji = '💧';
+        } else if (partName.includes('Обвід')) {
+            shortName = 'Обвід';
+            emoji = '🔧';
+        } else if (partName.includes('Діагн')) {
+            shortName = 'Діаг';
+            emoji = '🔍';
+        } else if (partName.includes('Розвал')) {
+            shortName = 'Розв';
+            emoji = '📐';
+        } else if (partName.includes('Профілактика') || partName.includes('Супорт')) {
+            shortName = 'Супорт';
+            emoji = '🛠️';
+        } else {
+            shortName = partName.split(' ')[0];
+            emoji = '🔧';
+        }
 
         return `
-            <tr class="${rowBg} hover:bg-blue-50 cursor-pointer transition-colors"
-                onclick="app.setState({ selectedCar: '${car.car}' }); app.render();">
-                <td class="px-2 sm:px-3 py-2 sm:py-3"><div class="${statusColor} w-3 h-3 rounded-full"></div></td>
-                <td class="px-2 sm:px-3 py-2 sm:py-3">
-                    <div class="font-bold text-gray-800 text-sm whitespace-nowrap overflow-hidden text-ellipsis max-w-[100px] sm:max-w-[120px]"
-                         title="${car.license}">${car.license}</div>
-                </td>
-                <td class="px-2 sm:px-3 py-2 sm:py-3 hidden sm:table-cell">
-                    <div class="text-gray-700 text-sm whitespace-nowrap overflow-hidden text-ellipsis max-w-[150px]"
-                         title="${car.model}">${car.model}</div>
-                </td>
-                <td class="px-2 sm:px-3 py-2 sm:py-3 hidden sm:table-cell">
-                    <div class="text-gray-600 text-sm whitespace-nowrap">${car.year || '-'}</div>
-                </td>
-                <td class="px-2 sm:px-3 py-2 sm:py-3">
-                    <div class="text-gray-700 text-sm whitespace-nowrap flex items-center gap-1">
-                        <span class="text-xs">📍</span>
-                        <span class="font-medium">${car.city || '-'}</span>
-                    </div>
-                </td>
-                <td class="px-2 sm:px-3 py-2 sm:py-3">
-                    <div class="font-semibold text-gray-800 text-sm whitespace-nowrap overflow-hidden text-ellipsis max-w-[100px] sm:max-w-[120px]">
-                        ${this.formatMileage(car.currentMileage)}
-                    </div>
-                </td>
-                ${partCells}
-                <td class="px-2 sm:px-3 py-2 sm:py-3 text-center hidden sm:table-cell">
-                    <span class="inline-flex items-center justify-center w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-green-100 text-green-700 font-bold text-xs sm:text-sm">
-                        ${goodCount}
-                    </span>
-                </td>
-                <td class="px-2 sm:px-3 py-2 sm:py-3 text-center hidden sm:table-cell">
-                    <span class="inline-flex items-center justify-center w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-orange-100 text-orange-700 font-bold text-xs sm:text-sm">
-                        ${warningCount}
-                    </span>
-                </td>
-                <td class="px-2 sm:px-3 py-2 sm:py-3 text-center hidden sm:table-cell">
-                    <span class="inline-flex items-center justify-center w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-red-100 text-red-700 font-bold text-xs sm:text-sm">
-                        ${criticalCount}
-                    </span>
-                </td>
-                <td class="px-2 sm:px-3 py-2 sm:py-3 text-center">
-                    <div class="text-blue-600 font-semibold text-sm whitespace-nowrap">
-                        ${car.history.length}
-                    </div>
-                </td>
-            </tr>
+            <th class="px-1 py-1 text-center text-[10px] font-bold uppercase w-[65px]">
+                <div class="cursor-pointer hover:bg-white/10 p-0.5 rounded"
+                     onclick="event.stopPropagation(); app.showPartFilterMenu(event, '${partName}')">
+                    <div class="font-bold">${shortName}</div>
+                    <div class="opacity-70">${emoji}</div>
+                </div>
+            </th>
         `;
-    }
+    }).join('');
+}
+
+generateCarRow(car, idx, importantParts) {
+    const parts = Object.values(car.parts).filter(p => p !== null);
+    const criticalCount = parts.filter(p => p.status === 'critical').length;
+    const warningCount = parts.filter(p => p.status === 'warning').length;
+    const goodCount = parts.filter(p => p.status === 'good').length;
+
+    const statusColor = criticalCount > 0 ? 'bg-red-500' : warningCount > 0 ? 'bg-orange-500' : 'bg-green-500';
+    
+    const rowBg = idx % 2 === 0 ? 'bg-gray-50' : 'bg-white';
+
+    const partCells = importantParts.map(partName => {
+        const part = car.parts[partName];
+        const isMonths = partName.includes('Діагностика') || partName.includes('Розвал') || partName.includes('Профілактика');
+        const display = this.getPartDisplay(part, isMonths);
+        return `<td class="px-1 py-2 text-center">
+                    <div class="${display.bg} ${display.color} font-semibold text-[10px] py-1 px-0.5 rounded whitespace-nowrap overflow-hidden text-ellipsis max-w-[60px] mx-auto">
+                        ${display.text}
+                    </div>
+                </td>`;
+    }).join('');
+
+    return `
+        <tr class="${rowBg} hover:bg-blue-50 cursor-pointer transition-colors"
+            onclick="app.setState({ selectedCar: '${car.car}' }); app.render();">
+            <td class="px-2 py-3"><div class="${statusColor} w-2.5 h-2.5 rounded-full"></div></td>
+            <td class="px-2 py-3">
+                <div class="font-bold text-gray-800 text-sm whitespace-nowrap overflow-hidden text-ellipsis max-w-[85px]"
+                     title="${car.license}">${car.license}</div>
+            </td>
+            <td class="px-2 py-3 mobile-hidden">
+                <div class="text-gray-700 text-xs whitespace-nowrap overflow-hidden text-ellipsis max-w-[115px]"
+                     title="${car.model}">${car.model}</div>
+            </td>
+            <td class="px-2 py-3 mobile-hidden">
+                <div class="text-gray-600 text-xs whitespace-nowrap">${car.year || '-'}</div>
+            </td>
+            <td class="px-2 py-3">
+                <div class="text-gray-700 text-xs whitespace-nowrap flex items-center gap-1 max-w-[75px]">
+                    <span class="text-[10px]">📍</span>
+                    <span class="font-medium truncate" title="${car.city || '-'}">${car.city || '-'}</span>
+                </div>
+            </td>
+            <td class="px-2 py-3">
+                <div class="font-semibold text-gray-800 text-xs whitespace-nowrap overflow-hidden text-ellipsis max-w-[75px]">
+                    ${this.formatMileage(car.currentMileage)}
+                </div>
+            </td>
+            ${partCells}
+            <td class="px-1 py-3 text-center mobile-hidden">
+                <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-green-100 text-green-700 font-bold text-xs">
+                    ${goodCount}
+                </span>
+            </td>
+            <td class="px-1 py-3 text-center mobile-hidden">
+                <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-orange-100 text-orange-700 font-bold text-xs">
+                    ${warningCount}
+                </span>
+            </td>
+            <td class="px-1 py-3 text-center mobile-hidden">
+                <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-red-100 text-red-700 font-bold text-xs">
+                    ${criticalCount}
+                </span>
+            </td>
+            <td class="px-1 py-3 text-center">
+                <div class="text-blue-600 font-semibold text-xs whitespace-nowrap">
+                    ${car.history.length}
+                </div>
+            </td>
+        </tr>
+    `;
+}
 
     getPartDisplay(part, isMonths = false) {
         if (!part) return { color: 'text-gray-400', text: '-', bg: 'bg-gray-100' };
