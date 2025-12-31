@@ -873,15 +873,15 @@ generateCarRow(car, idx, importantParts) {
     const rowBg = idx % 2 === 0 ? 'bg-gray-50' : 'bg-white';
 
     const partCells = importantParts.map(partName => {
-        const part = car.parts[partName];
-        const isMonths = partName.includes('Діагностика') || partName.includes('Розвал') || partName.includes('Профілактика');
-        const display = this.getPartDisplay(part, isMonths);
-        return `<td class="px-1 py-2 text-center">
-                    <div class="${display.bg} ${display.color} font-semibold text-[10px] py-1 px-0.5 rounded whitespace-nowrap overflow-hidden text-ellipsis max-w-[60px] mx-auto">
-                        ${display.text}
-                    </div>
-                </td>`;
-    }).join('');
+    const part = car.parts[partName];
+    const isMonths = partName.includes('Діагностика') || partName.includes('Розвал') || partName.includes('Профілактика');
+    const display = this.getPartDisplay(part, isMonths);
+    return `<td class="px-1 py-2 text-center">
+                <div class="${display.bg} ${display.color} font-semibold ${display.textSize} py-1 px-0.5 rounded whitespace-nowrap overflow-hidden text-ellipsis max-w-[60px] mx-auto">
+                    ${display.text}
+                </div>
+            </td>`;
+}).join('');
 
     return `
         <tr class="${rowBg} hover:bg-blue-50 cursor-pointer transition-colors"
