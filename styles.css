@@ -1,0 +1,271 @@
+/* Додаткові стилі для кращої оптимізації */
+
+/* Оптимізація шрифтів */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+}
+
+/* Оптимізація анімацій */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* Оптимізація для мобільних пристроїв */
+@media (max-width: 640px) {
+    .mobile-tap-target {
+        min-height: 44px;
+        min-width: 44px;
+    }
+    
+    .mobile-text-truncate {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        max-width: 100px;
+    }
+}
+
+/* Стилі для таблиць на малих екранах */
+.table-responsive {
+    display: block;
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Покращення доступності */
+.focus-visible {
+    outline: 2px solid #3b82f6;
+    outline-offset: 2px;
+}
+
+/* Стилі для стану завантаження */
+.skeleton {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+/* Стилі для темної теми (автоматична) */
+@media (prefers-color-scheme: dark) {
+    body {
+        background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #0a0a0a 100%);
+    }
+    
+    .bg-white {
+        background-color: #1f2937 !important;
+        color: #f3f4f6 !important;
+    }
+    
+    .text-gray-800 {
+        color: #f3f4f6 !important;
+    }
+    
+    .text-gray-600 {
+        color: #d1d5db !important;
+    }
+    
+    .border-gray-300 {
+        border-color: #4b5563 !important;
+    }
+}
+
+/* Стилі для друку */
+@media print {
+    .no-print {
+        display: none !important;
+    }
+    
+    body {
+        background: white !important;
+        color: black !important;
+    }
+    
+    table {
+        break-inside: avoid;
+    }
+}
+
+/* Виправлення для мобільних пристроїв - карточка авто */
+@media (max-width: 768px) {
+    /* Виправлення кольорів для статусів запчастин в карточці авто */
+    .bg-red-50 {
+        background-color: #fef2f2 !important;
+    }
+    
+    .bg-orange-50 {
+        background-color: #fff7ed !important;
+    }
+    
+    .bg-green-50 {
+        background-color: #f0fdf4 !important;
+    }
+    
+    .bg-gray-50 {
+        background-color: #f9fafb !important;
+    }
+    
+    .text-red-600 {
+        color: #dc2626 !important;
+    }
+    
+    .text-orange-600 {
+        color: #ea580c !important;
+    }
+    
+    .text-green-600 {
+        color: #16a34a !important;
+    }
+    
+    .text-gray-400 {
+        color: #9ca3af !important;
+    }
+    
+    /* Покращення видимості тексту */
+    .mobile-dark-text {
+        color: #1f2937 !important;
+    }
+    
+    .mobile-dark-text .font-extrabold {
+        color: #111827 !important;
+        font-weight: 800 !important;
+    }
+    
+    /* Кнопки та елементи форми */
+    button,
+    input,
+    select {
+        color: #1f2937 !important;
+    }
+}
+
+/* Покращення видимості часу і дати в карточках */
+.font-extrabold {
+    font-weight: 800 !important;
+}
+
+.text-xl {
+    font-size: 1.25rem !important;
+    line-height: 1.75rem !important;
+}
+
+.text-base {
+    font-size: 1rem !important;
+    line-height: 1.5rem !important;
+}
+
+/* Відступи для кращої читабельності */
+.mb-6 {
+    margin-bottom: 1.5rem !important;
+}
+/* Фіксована панель для карточки авто */
+.sticky-top-panel {
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    background: linear-gradient(135deg, rgba(15, 23, 42, 0.98) 0%, rgba(30, 58, 138, 0.95) 100%);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(59, 130, 246, 0.3);
+    box-shadow: 0 4px 25px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+}
+
+.sticky-top-panel:hover {
+    background: linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 58, 138, 0.92) 100%);
+    border-bottom: 1px solid rgba(59, 130, 246, 0.5);
+}
+
+/* Анімація появи фіксованої панелі */
+@keyframes slideInFromTop {
+    0% {
+        transform: translateY(-100%);
+        opacity: 0;
+    }
+    100% {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.sticky-top-panel {
+    animation: slideInFromTop 0.3s ease-out;
+}
+
+/* Основний вміст з урахуванням фіксованої панелі */
+.car-detail-content {
+    padding-top: 1rem;
+}
+
+/* Мобільна адаптація для фіксованої панелі */
+@media (max-width: 768px) {
+    .sticky-top-panel {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 50;
+        padding-top: env(safe-area-inset-top);
+        background: linear-gradient(135deg, rgba(15, 23, 42, 0.99) 0%, rgba(30, 58, 138, 0.97) 100%);
+        border-bottom: 1px solid rgba(59, 130, 246, 0.4);
+        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+    }
+    
+    .car-detail-content {
+        padding-top: 200px; /* Відступ для фіксованої панелі на мобільних */
+        padding-bottom: 2rem;
+    }
+    
+    /* Безпечні зони для iPhone */
+    @supports (padding: max(0px)) {
+        .sticky-top-panel {
+            padding-left: max(1rem, env(safe-area-inset-left));
+            padding-right: max(1rem, env(safe-area-inset-right));
+        }
+    }
+}
+
+/* Ефект при прокрутці */
+.sticky-top-panel.scrolled {
+    background: linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 58, 138, 0.92) 100%);
+    box-shadow: 0 6px 30px rgba(0, 0, 0, 0.25);
+}
+
+/* Покращення для темної теми */
+@media (prefers-color-scheme: dark) {
+    .sticky-top-panel {
+        background: linear-gradient(135deg, rgba(10, 10, 10, 0.98) 0%, rgba(26, 26, 46, 0.95) 100%);
+        border-bottom: 1px solid rgba(59, 130, 246, 0.2);
+    }
+    
+    .sticky-top-panel:hover {
+        background: linear-gradient(135deg, rgba(10, 10, 10, 0.95) 0%, rgba(26, 26, 46, 0.92) 100%);
+        border-bottom: 1px solid rgba(59, 130, 246, 0.3);
+    }
+}
+
+/* Плавний скрол для всієї сторінки */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Відключення анімацій для людей з підвищеною чутливістю */
+@media (prefers-reduced-motion: reduce) {
+    .sticky-top-panel,
+    html {
+        animation: none;
+        scroll-behavior: auto;
+        transition: none;
+    }
+}
