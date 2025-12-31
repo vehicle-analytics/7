@@ -796,6 +796,30 @@ class CarAnalyticsApp {
 
     return `
         <div class="scroll-hint-container">
+            <div class="table-with-scroll-hint">
+                <div class="overflow-x-auto w-full">
+                    <table class="w-full min-w-[1100px]">
+                        <thead class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white">
+                            <tr>
+                                <th class="px-2 py-2 text-left text-xs font-bold uppercase w-[40px]">Статус</th>
+                                <th class="px-2 py-2 text-left text-xs font-bold uppercase w-[90px]">Номер</th>
+                                <th class="px-2 py-2 text-left text-xs font-bold uppercase mobile-hidden w-[120px]">Модель</th>
+                                <th class="px-2 py-2 text-left text-xs font-bold uppercase mobile-hidden w-[50px]">Рік</th>
+                                <th class="px-2 py-2 text-left text-xs font-bold uppercase w-[80px]">Місто</th>
+                                <th class="px-2 py-2 text-left text-xs font-bold uppercase w-[80px]">Пробіг</th>
+                                ${tableHeaders}
+                                <th class="px-1 py-2 text-center text-xs font-bold uppercase mobile-hidden w-[50px]">✅</th>
+                                <th class="px-1 py-2 text-center text-xs font-bold uppercase mobile-hidden w-[50px]">⚠️</th>
+                                <th class="px-1 py-2 text-center text-xs font-bold uppercase mobile-hidden w-[50px]">⛔</th>
+                                <th class="px-1 py-2 text-center text-xs font-bold uppercase w-[50px]">📋</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200">
+                            ${tableRows}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
             <div class="scroll-hint">
                 <div class="scroll-hint-content">
                     <div class="scroll-hint-text">
@@ -804,28 +828,6 @@ class CarAnalyticsApp {
                         <span>→</span>
                     </div>
                 </div>
-            </div>
-            <div class="overflow-x-auto w-full">
-                <table class="w-full min-w-[1100px]">
-                    <thead class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white">
-                        <tr>
-                            <th class="px-2 py-2 text-left text-xs font-bold uppercase w-[40px]">Статус</th>
-                            <th class="px-2 py-2 text-left text-xs font-bold uppercase w-[90px]">Номер</th>
-                            <th class="px-2 py-2 text-left text-xs font-bold uppercase mobile-hidden w-[120px]">Модель</th>
-                            <th class="px-2 py-2 text-left text-xs font-bold uppercase mobile-hidden w-[50px]">Рік</th>
-                            <th class="px-2 py-2 text-left text-xs font-bold uppercase w-[80px]">Місто</th>
-                            <th class="px-2 py-2 text-left text-xs font-bold uppercase w-[80px]">Пробіг</th>
-                            ${tableHeaders}
-                            <th class="px-1 py-2 text-center text-xs font-bold uppercase mobile-hidden w-[50px]">✅</th>
-                            <th class="px-1 py-2 text-center text-xs font-bold uppercase mobile-hidden w-[50px]">⚠️</th>
-                            <th class="px-1 py-2 text-center text-xs font-bold uppercase mobile-hidden w-[50px]">⛔</th>
-                            <th class="px-1 py-2 text-center text-xs font-bold uppercase w-[50px]">📋</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-gray-200">
-                        ${tableRows}
-                    </tbody>
-                </table>
             </div>
         </div>
     `;
