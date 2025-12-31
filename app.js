@@ -795,18 +795,17 @@ class CarAnalyticsApp {
     const tableRows = cars.map((car, idx) => this.generateCarRow(car, idx, importantParts)).join('');
 
     return `
-        <div class="relative">
-            <!-- ЗМІНЕНО: Підказка тепер внизу під таблицею -->
-            <div class="absolute bottom-2 left-1/2 transform -translate-x-1/2 pointer-events-none z-10">
-                <div class="bg-gradient-to-r from-blue-500/10 to-indigo-500/10 backdrop-blur-sm border border-blue-300/30 px-4 py-2 rounded-lg shadow-lg">
-                    <div class="text-xs text-blue-700 font-medium flex items-center gap-2 animate-pulse">
+        <div class="scroll-hint-container">
+            <div class="scroll-hint">
+                <div class="scroll-hint-content">
+                    <div class="scroll-hint-text">
                         <span>↔️</span>
                         <span>Гортай таблицю вправо</span>
                         <span>→</span>
                     </div>
                 </div>
             </div>
-            <div class="overflow-x-auto w-full relative z-0">
+            <div class="overflow-x-auto w-full">
                 <table class="w-full min-w-[1100px]">
                     <thead class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white">
                         <tr>
