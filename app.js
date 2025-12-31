@@ -796,9 +796,10 @@ class CarAnalyticsApp {
 
     return `
         <div class="relative">
-            <div class="absolute top-0 left-0 right-0 h-full flex items-center justify-center pointer-events-none z-10">
-                <div class="bg-gradient-to-r from-transparent via-white/50 to-transparent px-4 py-2 rounded-lg">
-                    <div class="text-xs text-gray-600 flex items-center gap-2 animate-pulse">
+            <!-- ЗМІНЕНО: Підказка тепер внизу під таблицею -->
+            <div class="absolute bottom-2 left-1/2 transform -translate-x-1/2 pointer-events-none z-10">
+                <div class="bg-gradient-to-r from-blue-500/10 to-indigo-500/10 backdrop-blur-sm border border-blue-300/30 px-4 py-2 rounded-lg shadow-lg">
+                    <div class="text-xs text-blue-700 font-medium flex items-center gap-2 animate-pulse">
                         <span>↔️</span>
                         <span>Гортай таблицю вправо</span>
                         <span>→</span>
