@@ -2,155 +2,134 @@
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>🚗 Відстеження запчастин автомобілів</title>
     <meta name="description" content="Аналітична панель для відстеження обслуговування автомобілів">
     <link rel="stylesheet" href="styles.css">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="app.js" defer></script>
     <style>
-    :root {
-        --primary-blue: #1e40af;
-        --secondary-blue: #1e3a8a;
-        --success-green: #059669;
-        --warning-orange: #d97706;
-        --critical-red: #dc2626;
-    }
-    
-    body {
-        margin: 0;
-        padding: 0;
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-        background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #0f172a 100%);
-        min-height: 100vh;
-    }
-    
-    /* Анімації */
-    @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(10px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-    
-    .fade-in {
-        animation: fadeIn 0.3s ease-out;
-    }
-    
-    /* Фіксована верхня панель для карточки авто */
-    .sticky-panel {
-        position: sticky;
-        top: 0;
-        z-index: 40;
-        backdrop-filter: blur(8px);
-        -webkit-backdrop-filter: blur(8px);
-        background: linear-gradient(to bottom, rgba(15, 23, 42, 0.95), rgba(30, 58, 138, 0.9));
-        border-bottom: 1px solid rgba(59, 130, 246, 0.3);
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-    }
-    
-    /* Плавна анімація для фіксованої панелі */
-    @keyframes slideDown {
-        from { transform: translateY(-100%); opacity: 0; }
-        to { transform: translateY(0); opacity: 1; }
-    }
-    
-    .sticky-panel {
-        animation: slideDown 0.3s ease-out;
-    }
-    
-    /* Покращення видимості для фіксованої панелі */
-    .sticky-top {
-        position: sticky;
-        top: 0;
-    }
-    
-    /* Мобільні стилі */
-    @media (max-width: 768px) {
-        .mobile-text-sm { font-size: 0.875rem !important; }
-        .mobile-text-xs { font-size: 0.75rem !important; }
-        .mobile-p-2 { padding: 0.5rem !important; }
-        .mobile-p-3 { padding: 0.75rem !important; }
-        .mobile-gap-2 { gap: 0.5rem !important; }
-        .mobile-hidden { display: none !important; }
-        .mobile-stack { flex-direction: column !important; }
-        
-        /* Виправлення для мобільних пристроїв - карточка авто */
-        .mobile-dark-row,
-        .mobile-dark-row * {
-            color: #1f2937 !important;
+        /* СКИДАЄМО ВСІ СИСТЕМНІ ТЕМИ */
+        * {
+            -webkit-tap-highlight-color: transparent;
         }
         
-        /* Виправлення кольорів для статусів запчастин на мобільних */
-        .bg-red-50, .bg-orange-50, .bg-green-50, .bg-gray-50 {
-            background-color: inherit !important;
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #0f172a 100%) !important;
+            min-height: 100vh;
+            color: #ffffff;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
         
-        .text-red-600, .text-orange-600, .text-green-600, .text-gray-400 {
-            color: inherit !important;
+        /* ЗАБОРОНА ТЕМНОЇ ТЕМИ */
+        @media (prefers-color-scheme: dark) {
+            body {
+                background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #0f172a 100%) !important;
+            }
         }
         
-        /* Покращення видимості тексту в карточках */
-        .text-gray-800, .text-gray-700, .text-gray-900 {
-            color: #111827 !important;
-            font-weight: 600 !important;
+        /* МОБІЛЬНІ СТИЛІ */
+        @media (max-width: 640px) {
+            .mobile-text-sm { font-size: 13px !important; }
+            .mobile-text-xs { font-size: 11px !important; }
+            .mobile-p-2 { padding: 8px !important; }
+            .mobile-p-3 { padding: 12px !important; }
+            .mobile-gap-1 { gap: 4px !important; }
+            .mobile-gap-2 { gap: 8px !important; }
+            .mobile-hidden { display: none !important; }
+            .mobile-flex-col { flex-direction: column !important; }
+            
+            /* ПОКРАЩЕННЯ ДЛЯ МАЛИХ ЕКРАНІВ */
+            input, select, textarea, button {
+                font-size: 16px !important; /* Запобігає масштабуванню в iOS */
+            }
+            
+            /* БІЛІ КАРТКИ НА МОБІЛЬНИХ */
+            .bg-white {
+                background-color: #ffffff !important;
+                color: #1f2937 !important;
+            }
+            
+            .text-gray-800, .text-gray-700 {
+                color: #1f2937 !important;
+            }
+            
+            /* ПОЛЯ ВВОДУ */
+            input, select {
+                background-color: #ffffff !important;
+                color: #1f2937 !important;
+                border-color: #d1d5db !important;
+            }
+            
+            /* КНОПКИ */
+            button:not(.bg-blue-600):not(.bg-red-500):not(.bg-green-600) {
+                background-color: #f3f4f6 !important;
+                color: #1f2937 !important;
+            }
         }
         
-        /* Фільтри міста */
-        select, select option {
-            color: #1f2937 !important;
-            background-color: white !important;
+        /* АДАПТИВНІ РОЗМІРИ */
+        @media (max-width: 768px) {
+            .table-container {
+                margin-left: -8px;
+                margin-right: -8px;
+                padding-left: 8px;
+                padding-right: 8px;
+            }
+            
+            .card-padding {
+                padding: 12px !important;
+            }
+            
+            .text-responsive {
+                font-size: 14px !important;
+            }
         }
         
-        select option {
-            color: #1f2937 !important;
+        /* ПОКРАЩЕННЯ СКРОЛУ */
+        .scrollbar-thin {
+            scrollbar-width: thin;
+            scrollbar-color: #9ca3af #f3f4f6;
         }
         
-        /* Заголовки в карточці авто */
-        .text-gray-800, .text-gray-700, .text-gray-900 {
-            color: #111827 !important;
-            font-weight: 600 !important;
+        .scrollbar-thin::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
         }
         
-        /* Текст в фільтрах */
-        input, select {
-            color: #1f2937 !important;
-            background-color: white !important;
+        .scrollbar-thin::-webkit-scrollbar-track {
+            background: #f3f4f6;
+            border-radius: 3px;
         }
         
-        /* Фіксована панель на мобільних */
-        .sticky-panel {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 50;
-            background: linear-gradient(to bottom, rgba(15, 23, 42, 0.98), rgba(30, 58, 138, 0.95));
-            border-bottom: 1px solid rgba(59, 130, 246, 0.4);
-            box-shadow: 0 4px 25px rgba(0, 0, 0, 0.4);
+        .scrollbar-thin::-webkit-scrollbar-thumb {
+            background: #9ca3af;
+            border-radius: 3px;
         }
         
-        /* Додаємо відступ для основного вмісту на мобільних, щоб не перекривався фіксованою панеллю */
-        .mobile-content-padding {
-            padding-top: 180px !important;
+        /* АНІМАЦІЇ */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
-    }
-    
-    /* Загальні виправлення кольорів для темних фонів */
-    .bg-white {
-        color: #1f2937 !important;
-    }
-    
-    /* Покращення видимості часу і дати в карточках */
-    .font-extrabold {
-        font-weight: 800 !important;
-    }
-    
-    /* Плавний скрол */
-    html {
-        scroll-behavior: smooth;
-    }
-</style>
+        
+        .fade-in {
+            animation: fadeIn 0.3s ease-out;
+        }
+        
+        /* ФІКС ДЛЯ IOS */
+        @supports (-webkit-touch-callout: none) {
+            .min-h-screen {
+                min-height: -webkit-fill-available;
+            }
+        }
+    </style>
 </head>
-<body>
+<body class="scrollbar-thin">
     <div id="app">
         <!-- Завантаження -->
         <div id="loading-screen" class="min-h-screen flex flex-col items-center justify-center p-4">
@@ -189,7 +168,7 @@
         <footer class="mt-8 py-4 text-center text-blue-200 text-sm border-t border-blue-800/30">
             <div class="max-w-7xl mx-auto px-4">
                 <p>🚗 Dondyk AutoHub • AI-панель для обслуговування авто</p>
-                <p class="mt-1 text-xs opacity-70">© 2026 • Версія 2.1 • Дані оновлюються автоматично</p>
+                <p class="mt-1 text-xs opacity-70">© 2026 • Версія 3.5 • Дані оновлюються автоматично</p>
                 <div class="mt-2 flex justify-center gap-4 text-xs">
                     <button id="refresh-data" class="px-3 py-1 bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors">
                         🔄 Оновити дані
