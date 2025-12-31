@@ -1,165 +1,134 @@
-/* БАЗОВІ СТИЛІ ДЛЯ МОБІЛЬНИХ ПРИСТРОЇВ */
-
-/* Скидання теми браузера */
+/* ПОВНІСТЮ ВИДАЛЯЄМО ТЕМНУ ТЕМУ */
 :root {
     color-scheme: light;
+    -webkit-color-scheme: light;
 }
 
-/* Заборона темної теми */
-@media (prefers-color-scheme: dark) {
-    :root {
-        color-scheme: light;
-    }
-    
-    body {
-        background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #0f172a 100%) !important;
-    }
+/* БЛОКУЄМО БУДЬ-ЯКІ АВТОМАТИЧНІ ТЕМИ */
+html, body, * {
+    color-scheme: light !important;
+    -webkit-color-scheme: light !important;
 }
 
-/* МОБІЛЬНА АДАПТАЦІЯ */
-@media (max-width: 768px) {
-    /* Збільшення зони кліку для кнопок */
-    button, a, .clickable {
+/* ОСНОВНІ СТИЛІ */
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+    background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #0f172a 100%);
+    min-height: 100vh;
+    margin: 0;
+    padding: 0;
+}
+
+/* Оптимізація для мобільних пристроїв */
+@media (max-width: 640px) {
+    .mobile-tap-target {
         min-height: 44px;
         min-width: 44px;
     }
     
-    /* Покращення читабельності тексту */
-    .text-gray-800, .text-gray-700 {
-        color: #1f2937 !important;
-        font-weight: 500 !important;
-    }
-    
-    /* Білий фон для всіх карток */
-    .bg-white, .bg-gray-50, .bg-gray-100 {
-        background-color: #ffffff !important;
-    }
-    
-    /* Контрастні рамки */
-    .border, .border-gray-200, .border-gray-300 {
-        border-color: #e5e7eb !important;
-        border-width: 1px !important;
-    }
-    
-    /* Поля вводу */
-    input, select, textarea {
-        font-size: 16px !important; /* Запобігає масштабуванню в iOS */
-        background-color: #ffffff !important;
-        color: #1f2937 !important;
-        border: 1px solid #d1d5db !important;
-        border-radius: 8px !important;
-        padding: 12px !important;
-    }
-    
-    /* Випадаючі списки */
-    select option {
-        background-color: #ffffff !important;
-        color: #1f2937 !important;
-    }
-    
-    /* Кнопки */
-    button {
-        font-weight: 600 !important;
-    }
-    
-    /* Таблиці */
-    table {
-        font-size: 14px !important;
-    }
-    
-    th, td {
-        padding: 8px !important;
-    }
-    
-    /* Карточки статусів */
-    .bg-green-100 { background-color: #d1fae5 !important; color: #065f46 !important; }
-    .bg-orange-100 { background-color: #ffedd5 !important; color: #9a3412 !important; }
-    .bg-red-100 { background-color: #fee2e2 !important; color: #991b1b !important; }
-    .bg-blue-100 { background-color: #dbeafe !important; color: #1e40af !important; }
-    
-    .text-green-600 { color: #065f46 !important; }
-    .text-orange-600 { color: #9a3412 !important; }
-    .text-red-600 { color: #991b1b !important; }
-    .text-blue-600 { color: #1e40af !important; }
-    
-    /* Плавний скрол */
-    * {
-        -webkit-overflow-scrolling: touch;
-    }
-    
-    /* Заборона виділення */
-    .no-select {
-        -webkit-touch-callout: none;
-        -webkit-user-select: none;
-        user-select: none;
+    .mobile-text-truncate {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        max-width: 100px;
     }
 }
 
-/* ОПТИМІЗАЦІЯ ДЛЯ IOS */
-@supports (-webkit-touch-callout: none) {
-    /* Фікс для висоти екрана */
-    .min-h-screen {
-        min-height: -webkit-fill-available;
-    }
-    
-    /* Фікс для фіксованих елементів */
-    .sticky {
-        position: -webkit-sticky;
-    }
-    
-    /* Покращення скролу */
-    .overflow-y-auto {
-        -webkit-overflow-scrolling: touch;
-    }
+/* Стилі для таблиць на малих екранах */
+.table-responsive {
+    display: block;
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
 }
 
-/* ОПТИМІЗАЦІЯ ДЛЯ ANDROID */
-@supports not (-webkit-touch-callout: none) {
-    /* Покращення шрифтів */
+/* Покращення доступності */
+.focus-visible {
+    outline: 2px solid #3b82f6;
+    outline-offset: 2px;
+}
+
+/* Стилі для стану завантаження */
+.skeleton {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+/* Стилі для друку */
+@media print {
+    .no-print {
+        display: none !important;
+    }
+    
     body {
-        text-rendering: optimizeLegibility;
+        background: white !important;
+        color: black !important;
+    }
+    
+    table {
+        break-inside: avoid;
     }
 }
 
-/* ЗАГАЛЬНІ ПОКРАЩЕННЯ */
-/* Заборона виділення для інтерактивних елементів */
-button, a, .clickable {
-    -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
+/* Фіксована панель для карточки авто */
+.sticky-top-panel {
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    background: linear-gradient(135deg, rgba(15, 23, 42, 0.98) 0%, rgba(30, 58, 138, 0.95) 100%);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(59, 130, 246, 0.3);
+    box-shadow: 0 4px 25px rgba(0, 0, 0, 0.2);
 }
 
-/* Плавні переходи */
-.fade-transition {
-    transition: all 0.3s ease;
+/* Плавна анімація для фіксованої панелі */
+@keyframes slideInFromTop {
+    0% {
+        transform: translateY(-100%);
+        opacity: 0;
+    }
+    100% {
+        transform: translateY(0);
+        opacity: 1;
+    }
 }
 
-/* Тіні для карток */
-.shadow-card {
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+.sticky-top-panel {
+    animation: slideInFromTop 0.3s ease-out;
 }
 
-/* Контейнери з обмеженням ширини */
-.max-w-container {
-    max-width: 1200px;
-    margin-left: auto;
-    margin-right: auto;
+/* Плавний скрол */
+html {
+    scroll-behavior: smooth;
 }
 
-/* АДАПТИВНІ РОЗМІРИ ШРИФТІВ */
-@media (max-width: 640px) {
-    .text-sm-mobile { font-size: 13px !important; }
-    .text-base-mobile { font-size: 15px !important; }
-    .text-lg-mobile { font-size: 17px !important; }
-    .text-xl-mobile { font-size: 19px !important; }
+/* Відключення анімацій для людей з підвищеною чутливістю */
+@media (prefers-reduced-motion: reduce) {
+    .sticky-top-panel,
+    html {
+        animation: none;
+        scroll-behavior: auto;
+        transition: none;
+    }
 }
 
-/* ПАДДІНГИ ДЛЯ БЕЗПЕЧНИХ ЗОН */
-.safe-padding {
-    padding-left: env(safe-area-inset-left);
-    padding-right: env(safe-area-inset-right);
-    padding-bottom: env(safe-area-inset-bottom);
-}
-
-/* ФІКС ДЛЯ ФУТЕРА НА IOS */
-.footer-fix {
-    padding-bottom: calc(20px + env(safe-area-inset-bottom));
+/* МОБІЛЬНІ СТИЛІ - ЛЕГКІ */
+@media (max-width: 768px) {
+    .mobile-dark-text,
+    .mobile-dark-text * {
+        color: #1f2937 !important;
+    }
+    
+    .mobile-dark-text input,
+    .mobile-dark-text select {
+        color: #1f2937 !important;
+        background-color: white !important;
+    }
 }
