@@ -140,34 +140,51 @@ html {
     font-weight: 600 !important; /* Напівжирний для кращої читабельності */
 }
 
+/* Стилі для підказки прокрутки таблиці - ВАРІАНТ 3 (найпростіший) */
 .scroll-hint-container {
     position: relative;
     width: 100%;
 }
 
+/* Підказка розміщується після таблиці */
 .scroll-hint {
-    position: relative; /* Змінюємо на relative */
-    margin-top: 25px; /* Відступ зверху (після таблиці) */
+    margin-top: 25px; /* Відступ зверху - можна змінювати */
     text-align: center;
     width: 100%;
     z-index: 20;
     pointer-events: none;
 }
 
+/* Стилі для плашки підказки */
 .scroll-hint-content {
-    display: inline-block; /* Центрування */
+    display: inline-block; /* Для центрування */
     background: rgba(59, 130, 246, 0.1);
     border: 1px solid rgba(59, 130, 246, 0.3);
-    border-radius: 6px;
-    padding: 8px 16px;
-    backdrop-filter: blur(4px);
+    border-radius: 8px;
+    padding: 10px 20px;
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
+/* Текст підказки */
 .scroll-hint-text {
-    font-size: 0.75rem;
+    font-size: 0.875rem; /* 14px */
     font-weight: 600;
     color: #1e40af;
     display: flex;
     align-items: center;
-    gap: 6px;
+    justify-content: center;
+    gap: 8px;
+    white-space: nowrap;
+}
+
+/* Плавна анімація */
+@keyframes gentle-pulse {
+    0%, 100% { opacity: 0.9; }
+    50% { opacity: 1; }
+}
+
+.scroll-hint-text {
+    animation: gentle-pulse 2s infinite ease-in-out;
 }
