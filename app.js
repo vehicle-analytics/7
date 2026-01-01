@@ -5,28 +5,28 @@
 
 class CarAnalyticsApp {
     constructor() {
-        this.appData = null;
-        this.cachedData = null;
-        this.processedCars = null;
-        this.filteredCars = null;
-        this.activeInput = null; // ← ДОДАЙТЕ ЦЕ
+    this.appData = null;
+    this.cachedData = null;
+    this.processedCars = null;
+    this.filteredCars = null;
+    this.activeInput = null; // ← ЦЕ РЯДОК ДОДАЙТЕ
         
-        this.state = {
-            searchTerm: '',
-            selectedCity: 'Всі міста',
-            selectedCar: null,
-            selectedStatus: 'all',
-            selectedPartFilter: null,
-            selectedHistoryPartFilter: null,
-            historySearchTerm: '',
-            currentView: 'list'
-        };
+    this.state = {
+        searchTerm: '',
+        selectedCity: 'Всі міста',
+        selectedCar: null,
+        selectedStatus: 'all',
+        selectedPartFilter: null,
+        selectedHistoryPartFilter: null,
+        historySearchTerm: '',
+        currentView: 'list'
+    };
 
-        this.searchTimeout = null;
-        this.historySearchTimeout = null;
+    this.searchTimeout = null;
+    this.historySearchTimeout = null;
 
-        this.init();
-    }
+    this.init();
+}
 
     async init() {
         console.log('🚀 Ініціалізація аналітичної панелі...');
@@ -123,42 +123,37 @@ class CarAnalyticsApp {
     }
 
     setupEventListeners() {
-        document.getElementById('refresh-data')?.addEventListener('click', () => {
-            this.refreshData(true);
-        });
-
-        document.getElementById('clear-cache')?.addEventListener('click', () => {
-            this.clearCache();
-        });
-
-        document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-        if (e.target.tagName === 'INPUT') {
-            e.target.value = '';
-            if (e.target.id === 'mainSearchInput') {
-                this.setState({ searchTerm: '' });
-            } else if (e.target.id === 'historySearchInput') {
-                this.setState({ historySearchTerm: '' });
-            }
-            this.activeInput = e.target; // Зберігаємо посилання
-            e.target.focus();
-            e.preventDefault();
-        } else if (this.state.selectedCar) {
-            this.setState({ 
-                selectedCar: null, 
-                selectedHistoryPartFilter: null, 
-                historySearchTerm: '' 
-            });
-            this.activeInput = null; // Очищуємо при виході
-        }
-    }
-
-    if (e.ctrlKey && e.key === 'r') {
-        e.preventDefault();
+    document.getElementById('refresh-data')?.addEventListener('click', () => {
         this.refreshData(true);
-    }
-});
-    }
+    });
+
+    document.getElementById('clear-cache')?.addEventListener('click', () => {
+        this.clearCache();
+    });
+
+    // ↓↓↓ ДОДАЙТЕ ЦЕ ↓↓↓
+    document.addEventListener('click', (e) => {
+        // Якщо клікнули на поле вводу - зберігаємо його
+        if (e.target.tagName === 'INPUT' && (e.target.id === 'mainSearchInput' || e.target.id === 'historySearchInput')) {
+            this.activeInput = e.target;
+        }
+    });
+    // ↑↑↑ ДОДАЙТЕ ЦЕ ↑↑↑
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && this.state.selectedCar) {
+            this.state.selectedCar = null;
+            this.state.selectedHistoryPartFilter = null;
+            this.state.historySearchTerm = '';
+            this.render();
+        }
+
+        if (e.ctrlKey && e.key === 'r') {
+            e.preventDefault();
+            this.refreshData(true);
+        }
+    });
+}
 
     updateLoadingProgress(percent) {
         const bar = document.getElementById('loading-bar');
@@ -1410,7 +1405,8 @@ generateCarRow(car, idx, importantParts) {
     setState(newState) {
     const oldState = { ...this.state };
     this.state = { ...this.state, ...newState };
-        // Якщо змінюється вибір авто - очищуємо активне поле
+    
+    // Якщо змінюється вибір авто - очищуємо активне поле
     if (oldState.selectedCar !== this.state.selectedCar) {
         this.activeInput = null;
     }
@@ -1430,35 +1426,29 @@ generateCarRow(car, idx, importantParts) {
     
     this.render();
     
-    // ↓↓↓ ДОДАЙТЕ ЦЕ ↓↓↓
     // Відновлюємо фокус після рендерингу
-    if (this.activeInput && document.body.contains(this.activeInput)) {
-        // Зберігаємо позицію курсора перед рендерингом
-        const cursorPosition = this.activeInput.selectionStart;
-        const inputValue = this.activeInput.value;
-        
-        // Невелика затримка для гарантії оновлення DOM
-        setTimeout(() => {
+    setTimeout(() => {
+        if (this.activeInput && document.body.contains(this.activeInput)) {
+            const cursorPosition = this.activeInput.selectionStart;
             const newInput = document.getElementById(this.activeInput.id);
             if (newInput) {
                 newInput.focus();
-                // Відновлюємо позицію курсора
-                newInput.setSelectionRange(cursorPosition, cursorPosition);
+                setTimeout(() => {
+                    newInput.setSelectionRange(cursorPosition, cursorPosition);
+                }, 0);
             }
-        }, 0);
-    }
+        }
+    }, 0);
 }
 
     debouncedSearch(term) {
     clearTimeout(this.searchTimeout);
-    // Зберігаємо посилання на активне поле
     this.activeInput = document.getElementById('mainSearchInput');
     this.setState({ searchTerm: term });
 }
 
 debouncedHistorySearch(term) {
     clearTimeout(this.historySearchTimeout);
-    // Зберігаємо посилання на активне поле
     this.activeInput = document.getElementById('historySearchInput');
     this.setState({ historySearchTerm: term });
 }
