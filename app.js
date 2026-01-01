@@ -9,7 +9,7 @@ class CarAnalyticsApp {
     this.cachedData = null;
     this.processedCars = null;
     this.filteredCars = null;
-    this.activeInput = null; // ← ЦЕ РЯДОК ДОДАЙТЕ
+    this.activeInputId = null; // Зберігаємо ID, а не елемент
         
     this.state = {
         searchTerm: '',
@@ -27,7 +27,6 @@ class CarAnalyticsApp {
 
     this.init();
 }
-
     async init() {
         console.log('🚀 Ініціалізація аналітичної панелі...');
 
@@ -131,21 +130,35 @@ class CarAnalyticsApp {
         this.clearCache();
     });
 
-    // ↓↓↓ ДОДАЙТЕ ЦЕ ↓↓↓
+    // Обробка кліків на поля вводу
     document.addEventListener('click', (e) => {
-        // Якщо клікнули на поле вводу - зберігаємо його
-        if (e.target.tagName === 'INPUT' && (e.target.id === 'mainSearchInput' || e.target.id === 'historySearchInput')) {
-            this.activeInput = e.target;
+        if (e.target.tagName === 'INPUT') {
+            if (e.target.id === 'mainSearchInput' || e.target.id === 'historySearchInput') {
+                this.activeInputId = e.target.id;
+            }
         }
     });
-    // ↑↑↑ ДОДАЙТЕ ЦЕ ↑↑↑
 
     document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && this.state.selectedCar) {
-            this.state.selectedCar = null;
-            this.state.selectedHistoryPartFilter = null;
-            this.state.historySearchTerm = '';
-            this.render();
+        if (e.key === 'Escape') {
+            if (e.target.tagName === 'INPUT') {
+                e.target.value = '';
+                if (e.target.id === 'mainSearchInput') {
+                    this.setState({ searchTerm: '' });
+                } else if (e.target.id === 'historySearchInput') {
+                    this.setState({ historySearchTerm: '' });
+                }
+                this.activeInputId = e.target.id;
+                e.target.focus();
+                e.preventDefault();
+            } else if (this.state.selectedCar) {
+                this.setState({ 
+                    selectedCar: null, 
+                    selectedHistoryPartFilter: null, 
+                    historySearchTerm: '' 
+                });
+                this.activeInputId = null;
+            }
         }
 
         if (e.ctrlKey && e.key === 'r') {
@@ -743,6 +756,24 @@ class CarAnalyticsApp {
 
     generateFiltersHTML(cities) {
         const { selectedPartFilter, searchTerm, selectedCity } = this.state;
+        <input
+    type="text"
+    value="${searchTerm}"
+    oninput="app.debouncedSearch(this.value)"
+    onfocus="app.activeInputId = 'mainSearchInput'"
+    placeholder="Номер, модель, місто..."
+    class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-800"
+    id="mainSearchInput"
+>
+        <input
+    type="text"
+    value="${this.state.historySearchTerm}"
+    oninput="app.debouncedHistorySearch(this.value)"
+    onfocus="app.activeInputId = 'historySearchInput'"
+    placeholder="Пошук за текстом, датою або пробігом..."
+    class="flex-1 px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-800"
+    id="historySearchInput"
+>
 
         return `
             <div class="flex items-center justify-between mb-3">
@@ -1406,9 +1437,13 @@ generateCarRow(car, idx, importantParts) {
     const oldState = { ...this.state };
     this.state = { ...this.state, ...newState };
     
-    // Якщо змінюється вибір авто - очищуємо активне поле
-    if (oldState.selectedCar !== this.state.selectedCar) {
-        this.activeInput = null;
+    // Зберігаємо позицію курсора перед рендерингом
+    let cursorPosition = 0;
+    if (this.activeInputId) {
+        const input = document.getElementById(this.activeInputId);
+        if (input) {
+            cursorPosition = input.selectionStart;
+        }
     }
     
     const needsReprocess = 
@@ -1424,18 +1459,21 @@ generateCarRow(car, idx, importantParts) {
         this.filteredCars = null;
     }
     
+    // Якщо змінюється вибір авто - очищуємо активне поле
+    if (oldState.selectedCar !== this.state.selectedCar) {
+        this.activeInputId = null;
+    }
+    
     this.render();
     
     // Відновлюємо фокус після рендерингу
     setTimeout(() => {
-        if (this.activeInput && document.body.contains(this.activeInput)) {
-            const cursorPosition = this.activeInput.selectionStart;
-            const newInput = document.getElementById(this.activeInput.id);
-            if (newInput) {
-                newInput.focus();
-                setTimeout(() => {
-                    newInput.setSelectionRange(cursorPosition, cursorPosition);
-                }, 0);
+        if (this.activeInputId) {
+            const input = document.getElementById(this.activeInputId);
+            if (input) {
+                input.focus();
+                // Відновлюємо позицію курсора
+                input.setSelectionRange(cursorPosition, cursorPosition);
             }
         }
     }, 0);
@@ -1443,13 +1481,15 @@ generateCarRow(car, idx, importantParts) {
 
     debouncedSearch(term) {
     clearTimeout(this.searchTimeout);
-    this.activeInput = document.getElementById('mainSearchInput');
+    // Зберігаємо ID активного поля
+    this.activeInputId = 'mainSearchInput';
     this.setState({ searchTerm: term });
 }
 
 debouncedHistorySearch(term) {
     clearTimeout(this.historySearchTimeout);
-    this.activeInput = document.getElementById('historySearchInput');
+    // Зберігаємо ID активного поля
+    this.activeInputId = 'historySearchInput';
     this.setState({ historySearchTerm: term });
 }
 
