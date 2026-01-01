@@ -5,28 +5,28 @@
 
 class CarAnalyticsApp {
     constructor() {
-    this.appData = null;
-    this.cachedData = null;
-    this.processedCars = null;
-    this.filteredCars = null;
-    this.activeInputId = null; // Зберігаємо ID, а не елемент
+        this.appData = null;
+        this.cachedData = null;
+        this.processedCars = null;
+        this.filteredCars = null;
         
-    this.state = {
-        searchTerm: '',
-        selectedCity: 'Всі міста',
-        selectedCar: null,
-        selectedStatus: 'all',
-        selectedPartFilter: null,
-        selectedHistoryPartFilter: null,
-        historySearchTerm: '',
-        currentView: 'list'
-    };
+        this.state = {
+            searchTerm: '',
+            selectedCity: 'Всі міста',
+            selectedCar: null,
+            selectedStatus: 'all',
+            selectedPartFilter: null,
+            selectedHistoryPartFilter: null,
+            historySearchTerm: '',
+            currentView: 'list'
+        };
 
-    this.searchTimeout = null;
-    this.historySearchTimeout = null;
+        this.searchTimeout = null;
+        this.historySearchTimeout = null;
 
-    this.init();
-}
+        this.init();
+    }
+
     async init() {
         console.log('🚀 Ініціалізація аналітичної панелі...');
 
@@ -122,51 +122,28 @@ class CarAnalyticsApp {
     }
 
     setupEventListeners() {
-    document.getElementById('refresh-data')?.addEventListener('click', () => {
-        this.refreshData(true);
-    });
-
-    document.getElementById('clear-cache')?.addEventListener('click', () => {
-        this.clearCache();
-    });
-
-    // Обробка кліків на поля вводу
-    document.addEventListener('click', (e) => {
-        if (e.target.tagName === 'INPUT') {
-            if (e.target.id === 'mainSearchInput' || e.target.id === 'historySearchInput') {
-                this.activeInputId = e.target.id;
-            }
-        }
-    });
-
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') {
-            if (e.target.tagName === 'INPUT') {
-                e.target.value = '';
-                if (e.target.id === 'mainSearchInput') {
-                    this.setState({ searchTerm: '' });
-                } else if (e.target.id === 'historySearchInput') {
-                    this.setState({ historySearchTerm: '' });
-                }
-                this.activeInputId = e.target.id;
-                e.target.focus();
-                e.preventDefault();
-            } else if (this.state.selectedCar) {
-                this.setState({ 
-                    selectedCar: null, 
-                    selectedHistoryPartFilter: null, 
-                    historySearchTerm: '' 
-                });
-                this.activeInputId = null;
-            }
-        }
-
-        if (e.ctrlKey && e.key === 'r') {
-            e.preventDefault();
+        document.getElementById('refresh-data')?.addEventListener('click', () => {
             this.refreshData(true);
-        }
-    });
-}
+        });
+
+        document.getElementById('clear-cache')?.addEventListener('click', () => {
+            this.clearCache();
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && this.state.selectedCar) {
+                this.state.selectedCar = null;
+                this.state.selectedHistoryPartFilter = null;
+                this.state.historySearchTerm = '';
+                this.render();
+            }
+
+            if (e.ctrlKey && e.key === 'r') {
+                e.preventDefault();
+                this.refreshData(true);
+            }
+        });
+    }
 
     updateLoadingProgress(percent) {
         const bar = document.getElementById('loading-bar');
@@ -756,24 +733,6 @@ class CarAnalyticsApp {
 
     generateFiltersHTML(cities) {
         const { selectedPartFilter, searchTerm, selectedCity } = this.state;
-        <input
-    type="text"
-    value="${searchTerm}"
-    oninput="app.debouncedSearch(this.value)"
-    onfocus="app.activeInputId = 'mainSearchInput'"
-    placeholder="Номер, модель, місто..."
-    class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-800"
-    id="mainSearchInput"
->
-        <input
-    type="text"
-    value="${this.state.historySearchTerm}"
-    oninput="app.debouncedHistorySearch(this.value)"
-    onfocus="app.activeInputId = 'historySearchInput'"
-    placeholder="Пошук за текстом, датою або пробігом..."
-    class="flex-1 px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-800"
-    id="historySearchInput"
->
 
         return `
             <div class="flex items-center justify-between mb-3">
@@ -1434,60 +1393,38 @@ generateCarRow(car, idx, importantParts) {
     }
 
     setState(newState) {
-    const oldState = { ...this.state };
-    this.state = { ...this.state, ...newState };
-    
-    // Зберігаємо позицію курсора перед рендерингом
-    let cursorPosition = 0;
-    if (this.activeInputId) {
-        const input = document.getElementById(this.activeInputId);
-        if (input) {
-            cursorPosition = input.selectionStart;
+        const oldState = { ...this.state };
+        this.state = { ...this.state, ...newState };
+        
+        const needsReprocess = 
+            oldState.selectedCar !== this.state.selectedCar;
+        
+        const needsRefilter = 
+            oldState.searchTerm !== this.state.searchTerm ||
+            oldState.selectedCity !== this.state.selectedCity ||
+            oldState.selectedStatus !== this.state.selectedStatus ||
+            JSON.stringify(oldState.selectedPartFilter) !== JSON.stringify(this.state.selectedPartFilter);
+        
+        if (needsRefilter) {
+            this.filteredCars = null;
         }
+        
+        this.render();
     }
-    
-    const needsReprocess = 
-        oldState.selectedCar !== this.state.selectedCar;
-    
-    const needsRefilter = 
-        oldState.searchTerm !== this.state.searchTerm ||
-        oldState.selectedCity !== this.state.selectedCity ||
-        oldState.selectedStatus !== this.state.selectedStatus ||
-        JSON.stringify(oldState.selectedPartFilter) !== JSON.stringify(this.state.selectedPartFilter);
-    
-    if (needsRefilter) {
-        this.filteredCars = null;
-    }
-    
-    // Якщо змінюється вибір авто - очищуємо активне поле
-    if (oldState.selectedCar !== this.state.selectedCar) {
-        this.activeInputId = null;
-    }
-    
-    this.render();
-    
-    // Відновлюємо фокус після рендерингу
-    setTimeout(() => {
-        if (this.activeInputId) {
-            const input = document.getElementById(this.activeInputId);
-            if (input) {
-                input.focus();
-                // Відновлюємо позицію курсора
-                input.setSelectionRange(cursorPosition, cursorPosition);
-            }
-        }
-    }, 0);
-}
 
-    // Замініть debouncedSearch на:
-debouncedSearch(term) {
-    this.setState({ searchTerm: term }); // Без дебаунсу
-}
+    debouncedSearch(term) {
+        clearTimeout(this.searchTimeout);
+        this.searchTimeout = setTimeout(() => {
+            this.setState({ searchTerm: term });
+        }, 300);
+    }
 
-// Замініть debouncedHistorySearch на:
-debouncedHistorySearch(term) {
-    this.setState({ historySearchTerm: term }); // Без дебаунсу
-}
+    debouncedHistorySearch(term) {
+        clearTimeout(this.historySearchTimeout);
+        this.historySearchTimeout = setTimeout(() => {
+            this.setState({ historySearchTerm: term });
+        }, 300);
+    }
 
     clearPartFilter() {
         this.setState({ selectedPartFilter: null });
