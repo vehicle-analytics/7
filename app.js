@@ -21,9 +21,6 @@ class CarAnalyticsApp {
             currentView: 'list'
         };
 
-        this.searchTimeout = null;
-        this.historySearchTimeout = null;
-
         this.init();
     }
 
@@ -732,53 +729,56 @@ class CarAnalyticsApp {
     }
 
     generateFiltersHTML(cities) {
-        const { selectedPartFilter, searchTerm, selectedCity } = this.state;
+    const { selectedPartFilter, searchTerm, selectedCity } = this.state;
 
-        return `
-            <div class="flex items-center justify-between mb-3">
-                <h3 class="text-lg font-bold text-gray-800 flex items-center gap-2"><span>🔍</span> Фільтри</h3>
-                ${selectedPartFilter ? `
-                    <button onclick="app.clearPartFilter();"
-                            class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-lg text-xs font-semibold transition-colors">
-                        ✕ Скинути фільтр
-                    </button>
-                ` : ''}
-            </div>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                    <label class="block text-xs font-medium text-gray-700 mb-1">Пошук авто</label>
-                    <input
-                        type="text"
-                        value="${searchTerm}"
-                        oninput="app.debouncedSearch(this.value)"
-                        placeholder="Номер, модель, місто..."
-                        class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-800"
-                        id="mainSearchInput"
-                    >
-                </div>
-                <div>
-                    <label class="block text-xs font-medium text-gray-700 mb-1">Місто</label>
-                    <select onchange="app.setState({ selectedCity: this.value }); app.render();"
-                            class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-800">
-                        ${cities.map(city => `
-                            <option value="${city}" ${city === selectedCity ? 'selected' : ''} class="text-gray-800 bg-white">${city}</option>
-                        `).join('')}
-                    </select>
-                </div>
-            </div>
+    return `
+        <div class="flex items-center justify-between mb-3">
+            <h3 class="text-lg font-bold text-gray-800 flex items-center gap-2"><span>🔍</span> Фільтри</h3>
             ${selectedPartFilter ? `
-                <div class="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                    <div class="text-sm font-semibold text-blue-800 flex items-center gap-2">
-                        <span>📌</span>
-                        <span>Активний фільтр: ${selectedPartFilter.partName} -
-                        ${selectedPartFilter.status === 'all' ? 'Всі записи' :
-                          selectedPartFilter.status === 'good' ? '✅ У нормі' :
-                          selectedPartFilter.status === 'warning' ? '⚠️ Увага' : '⛔ Критично'}</span>
-                    </div>
-                </div>
+                <button onclick="app.clearPartFilter();"
+                        class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-lg text-xs font-semibold transition-colors">
+                    ✕ Скинути фільтр
+                </button>
             ` : ''}
-        `;
-    }
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+                <label class="block text-xs font-medium text-gray-700 mb-1">Пошук авто</label>
+                <input
+                    type="text"
+                    value="${searchTerm}"
+                    oninput="window.app && window.app.setState({ searchTerm: this.value })"
+                    placeholder="Номер, модель, місто..."
+                    class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-800"
+                    id="mainSearchInput"
+                    autocomplete="off"
+                    autocorrect="off"
+                    spellcheck="false"
+                >
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-gray-700 mb-1">Місто</label>
+                <select onchange="window.app && window.app.setState({ selectedCity: this.value });"
+                        class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-800">
+                    ${cities.map(city => `
+                        <option value="${city}" ${city === selectedCity ? 'selected' : ''} class="text-gray-800 bg-white">${city}</option>
+                    `).join('')}
+                </select>
+            </div>
+        </div>
+        ${selectedPartFilter ? `
+            <div class="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                <div class="text-sm font-semibold text-blue-800 flex items-center gap-2">
+                    <span>📌</span>
+                    <span>Активний фільтр: ${selectedPartFilter.partName} -
+                    ${selectedPartFilter.status === 'all' ? 'Всі записи' :
+                      selectedPartFilter.status === 'good' ? '✅ У нормі' :
+                      selectedPartFilter.status === 'warning' ? '⚠️ Увага' : '⛔ Критично'}</span>
+                </div>
+            </div>
+        ` : ''}
+    `;
+}
 
     generateCarsTable(cars, importantParts) {
     if (cars.length === 0) {
@@ -1412,20 +1412,7 @@ generateCarRow(car, idx, importantParts) {
         this.render();
     }
 
-    debouncedSearch(term) {
-        clearTimeout(this.searchTimeout);
-        this.searchTimeout = setTimeout(() => {
-            this.setState({ searchTerm: term });
-        }, 300);
-    }
-
-    debouncedHistorySearch(term) {
-        clearTimeout(this.historySearchTimeout);
-        this.historySearchTimeout = setTimeout(() => {
-            this.setState({ historySearchTerm: term });
-        }, 300);
-    }
-
+    
     clearPartFilter() {
         this.setState({ selectedPartFilter: null });
     }
