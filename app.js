@@ -1412,19 +1412,15 @@ generateCarRow(car, idx, importantParts) {
         this.render();
     }
 
-    debouncedSearch(term) {
-        clearTimeout(this.searchTimeout);
-        this.searchTimeout = setTimeout(() => {
-            this.setState({ searchTerm: term });
-        }, 300);
-    }
+    // Замініть debouncedSearch на:
+debouncedSearch(term) {
+    this.setState({ searchTerm: term }); // Без дебаунсу
+}
 
-    debouncedHistorySearch(term) {
-        clearTimeout(this.historySearchTimeout);
-        this.historySearchTimeout = setTimeout(() => {
-            this.setState({ historySearchTerm: term });
-        }, 300);
-    }
+// Замініть debouncedHistorySearch на:
+debouncedHistorySearch(term) {
+    this.setState({ historySearchTerm: term }); // Без дебаунсу
+}
 
     clearPartFilter() {
         this.setState({ selectedPartFilter: null });
