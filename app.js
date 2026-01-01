@@ -1479,18 +1479,14 @@ generateCarRow(car, idx, importantParts) {
     }, 0);
 }
 
-    debouncedSearch(term) {
-    clearTimeout(this.searchTimeout);
-    // Зберігаємо ID активного поля
-    this.activeInputId = 'mainSearchInput';
-    this.setState({ searchTerm: term });
+    // Замініть debouncedSearch на:
+debouncedSearch(term) {
+    this.setState({ searchTerm: term }); // Без дебаунсу
 }
 
+// Замініть debouncedHistorySearch на:
 debouncedHistorySearch(term) {
-    clearTimeout(this.historySearchTimeout);
-    // Зберігаємо ID активного поля
-    this.activeInputId = 'historySearchInput';
-    this.setState({ historySearchTerm: term });
+    this.setState({ historySearchTerm: term }); // Без дебаунсу
 }
 
     clearPartFilter() {
