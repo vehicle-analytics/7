@@ -1,6 +1,6 @@
 /**
  * 🚗 Аналітична панель відстеження запчастин
- * Версія 3.5 - Оптимізація для мобільних пристроїв
+ * Версія 3.6 - Виправлено фокус у полях пошуку
  */
 
 class CarAnalyticsApp {
@@ -20,6 +20,10 @@ class CarAnalyticsApp {
             historySearchTerm: '',
             currentView: 'list'
         };
+
+        // Для збереження фокусу
+        this.focusInfo = null;
+        this.renderScheduled = false;
 
         this.init();
     }
@@ -473,6 +477,9 @@ class CarAnalyticsApp {
 
         const html = this.generateCarListHTML(data, filteredData, cities, stats);
         document.getElementById('main-interface').innerHTML = html;
+        
+        // Відновлюємо фокус після рендеру
+        this.restoreFocus();
     }
 
     renderCarDetail() {
@@ -491,6 +498,79 @@ class CarAnalyticsApp {
 
         const html = this.generateCarDetailHTML(car);
         document.getElementById('main-interface').innerHTML = html;
+        
+        // Відновлюємо фокус після рендеру
+        this.restoreFocus();
+    }
+
+    // НОВИЙ метод для збереження фокусу
+    saveFocus() {
+        const activeElement = document.activeElement;
+        if (activeElement && (activeElement.id === 'mainSearchInput' || activeElement.id === 'historySearchInput')) {
+            this.focusInfo = {
+                id: activeElement.id,
+                value: activeElement.value,
+                selectionStart: activeElement.selectionStart,
+                selectionEnd: activeElement.selectionEnd
+            };
+        } else {
+            this.focusInfo = null;
+        }
+    }
+
+    // НОВИЙ метод для відновлення фокусу
+    restoreFocus() {
+        if (this.focusInfo) {
+            setTimeout(() => {
+                const element = document.getElementById(this.focusInfo.id);
+                if (element) {
+                    // Встановлюємо значення, якщо воно змінилося
+                    if (this.focusInfo.id === 'mainSearchInput' && element.value !== this.state.searchTerm) {
+                        element.value = this.state.searchTerm;
+                    } else if (this.focusInfo.id === 'historySearchInput' && element.value !== this.state.historySearchTerm) {
+                        element.value = this.state.historySearchTerm;
+                    }
+                    
+                    element.focus();
+                    element.setSelectionRange(this.focusInfo.selectionStart, this.focusInfo.selectionEnd);
+                }
+                this.focusInfo = null;
+            }, 10);
+        }
+    }
+
+    // НОВІ методи для обробки подій
+    handleSearchInput(event) {
+        this.saveFocus();
+        this.state.searchTerm = event.target.value;
+        
+        if (!this.renderScheduled) {
+            this.renderScheduled = true;
+            setTimeout(() => {
+                this.filteredCars = null;
+                this.renderCarList();
+                this.renderScheduled = false;
+            }, 50);
+        }
+    }
+
+    handleHistorySearchInput(event) {
+        this.saveFocus();
+        this.state.historySearchTerm = event.target.value;
+        
+        if (!this.renderScheduled) {
+            this.renderScheduled = true;
+            setTimeout(() => {
+                this.renderCarDetail();
+                this.renderScheduled = false;
+            }, 50);
+        }
+    }
+
+    handleSelectChange(event) {
+        this.state.selectedCity = event.target.value;
+        this.filteredCars = null;
+        this.renderCarList();
     }
 
     processCarData() {
@@ -747,7 +827,7 @@ class CarAnalyticsApp {
                     <input
                         type="text"
                         value="${searchTerm}"
-                        oninput="app.setState({ searchTerm: this.value })"
+                        oninput="app.handleSearchInput(event)"
                         placeholder="Номер, модель, місто..."
                         class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-800"
                         id="mainSearchInput"
@@ -758,7 +838,7 @@ class CarAnalyticsApp {
                 </div>
                 <div>
                     <label class="block text-xs font-medium text-gray-700 mb-1">Місто</label>
-                    <select onchange="app.setState({ selectedCity: this.value });"
+                    <select onchange="app.handleSelectChange(event)"
                             class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-800">
                         ${cities.map(city => `
                             <option value="${city}" ${city === selectedCity ? 'selected' : ''} class="text-gray-800 bg-white">${city}</option>
@@ -774,10 +854,10 @@ class CarAnalyticsApp {
                         ${selectedPartFilter.status === 'all' ? 'Всі записи' :
                           selectedPartFilter.status === 'good' ? '✅ У нормі' :
                           selectedPartFilter.status === 'warning' ? '⚠️ Увага' : '⛔ Критично'}</span>
-                    </div>
                 </div>
-            ` : ''}
-        `;
+            </div>
+        ` : ''}
+    `;
     }
 
     generateCarsTable(cars, importantParts) {
@@ -1126,7 +1206,7 @@ class CarAnalyticsApp {
                     <input
                         type="text"
                         value="${this.state.historySearchTerm}"
-                        oninput="app.setState({ historySearchTerm: this.value })"
+                        oninput="app.handleHistorySearchInput(event)"
                         placeholder="Пошук за текстом, датою або пробігом..."
                         class="flex-1 px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-800"
                         id="historySearchInput"
