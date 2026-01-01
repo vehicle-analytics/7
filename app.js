@@ -1413,18 +1413,14 @@ generateCarRow(car, idx, importantParts) {
     }
 
     debouncedSearch(term) {
-        clearTimeout(this.searchTimeout);
-        this.searchTimeout = setTimeout(() => {
-            this.setState({ searchTerm: term });
-        }, 300);
-    }
+    clearTimeout(this.searchTimeout);
+    this.setState({ searchTerm: term });
+}
 
-    debouncedHistorySearch(term) {
-        clearTimeout(this.historySearchTimeout);
-        this.historySearchTimeout = setTimeout(() => {
-            this.setState({ historySearchTerm: term });
-        }, 300);
-    }
+debouncedHistorySearch(term) {
+    clearTimeout(this.historySearchTimeout);
+    this.setState({ historySearchTerm: term });
+}
 
     clearPartFilter() {
         this.setState({ selectedPartFilter: null });
