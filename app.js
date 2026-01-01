@@ -715,7 +715,7 @@ class CarAnalyticsApp {
 
         return cards.map(card => `
             <div class="bg-gradient-to-br ${card.color} rounded-lg shadow-lg p-3 sm:p-4 text-white cursor-pointer hover:shadow-xl transition-all ${selectedStatus === card.status ? 'ring-2 ring-blue-300' : ''}"
-                 onclick="app.setState({ selectedStatus: '${card.status}' }); app.render();">
+                 onclick="app.setState({ selectedStatus: '${card.status}' });">
                 <div class="flex items-center justify-between">
                     <div>
                         <div class="text-xl sm:text-2xl font-bold mb-1">${card.count}</div>
@@ -729,236 +729,236 @@ class CarAnalyticsApp {
     }
 
     generateFiltersHTML(cities) {
-    const { selectedPartFilter, searchTerm, selectedCity } = this.state;
+        const { selectedPartFilter, searchTerm, selectedCity } = this.state;
 
-    return `
-        <div class="flex items-center justify-between mb-3">
-            <h3 class="text-lg font-bold text-gray-800 flex items-center gap-2"><span>🔍</span> Фільтри</h3>
-            ${selectedPartFilter ? `
-                <button onclick="app.clearPartFilter();"
-                        class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-lg text-xs font-semibold transition-colors">
-                    ✕ Скинути фільтр
-                </button>
-            ` : ''}
-        </div>
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div>
-                <label class="block text-xs font-medium text-gray-700 mb-1">Пошук авто</label>
-                <input
-                    type="text"
-                    value="${searchTerm}"
-                    oninput="window.app && window.app.setState({ searchTerm: this.value })"
-                    placeholder="Номер, модель, місто..."
-                    class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-800"
-                    id="mainSearchInput"
-                    autocomplete="off"
-                    autocorrect="off"
-                    spellcheck="false"
-                >
+        return `
+            <div class="flex items-center justify-between mb-3">
+                <h3 class="text-lg font-bold text-gray-800 flex items-center gap-2"><span>🔍</span> Фільтри</h3>
+                ${selectedPartFilter ? `
+                    <button onclick="app.clearPartFilter();"
+                            class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-lg text-xs font-semibold transition-colors">
+                        ✕ Скинути фільтр
+                    </button>
+                ` : ''}
             </div>
-            <div>
-                <label class="block text-xs font-medium text-gray-700 mb-1">Місто</label>
-                <select onchange="window.app && window.app.setState({ selectedCity: this.value });"
-                        class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-800">
-                    ${cities.map(city => `
-                        <option value="${city}" ${city === selectedCity ? 'selected' : ''} class="text-gray-800 bg-white">${city}</option>
-                    `).join('')}
-                </select>
-            </div>
-        </div>
-        ${selectedPartFilter ? `
-            <div class="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                <div class="text-sm font-semibold text-blue-800 flex items-center gap-2">
-                    <span>📌</span>
-                    <span>Активний фільтр: ${selectedPartFilter.partName} -
-                    ${selectedPartFilter.status === 'all' ? 'Всі записи' :
-                      selectedPartFilter.status === 'good' ? '✅ У нормі' :
-                      selectedPartFilter.status === 'warning' ? '⚠️ Увага' : '⛔ Критично'}</span>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-xs font-medium text-gray-700 mb-1">Пошук авто</label>
+                    <input
+                        type="text"
+                        value="${searchTerm}"
+                        oninput="app.setState({ searchTerm: this.value })"
+                        placeholder="Номер, модель, місто..."
+                        class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-800"
+                        id="mainSearchInput"
+                        autocomplete="off"
+                        autocorrect="off"
+                        spellcheck="false"
+                    >
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-gray-700 mb-1">Місто</label>
+                    <select onchange="app.setState({ selectedCity: this.value });"
+                            class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-800">
+                        ${cities.map(city => `
+                            <option value="${city}" ${city === selectedCity ? 'selected' : ''} class="text-gray-800 bg-white">${city}</option>
+                        `).join('')}
+                    </select>
                 </div>
             </div>
-        ` : ''}
-    `;
-}
+            ${selectedPartFilter ? `
+                <div class="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                    <div class="text-sm font-semibold text-blue-800 flex items-center gap-2">
+                        <span>📌</span>
+                        <span>Активний фільтр: ${selectedPartFilter.partName} -
+                        ${selectedPartFilter.status === 'all' ? 'Всі записи' :
+                          selectedPartFilter.status === 'good' ? '✅ У нормі' :
+                          selectedPartFilter.status === 'warning' ? '⚠️ Увага' : '⛔ Критично'}</span>
+                    </div>
+                </div>
+            ` : ''}
+        `;
+    }
 
     generateCarsTable(cars, importantParts) {
-    if (cars.length === 0) {
+        if (cars.length === 0) {
+            return `
+                <div class="px-4 py-12 text-center">
+                    <div class="text-gray-400 text-lg mb-2">🚫</div>
+                    <div class="text-gray-600 font-medium">Автомобілів не знайдено</div>
+                    <div class="text-gray-400 text-sm mt-1">Спробуйте змінити параметри пошуку</div>
+                </div>
+            `;
+        }
+
+        const tableHeaders = this.generateTableHeaders(importantParts);
+        const tableRows = cars.map((car, idx) => this.generateCarRow(car, idx, importantParts)).join('');
+
         return `
-            <div class="px-4 py-12 text-center">
-                <div class="text-gray-400 text-lg mb-2">🚫</div>
-                <div class="text-gray-600 font-medium">Автомобілів не знайдено</div>
-                <div class="text-gray-400 text-sm mt-1">Спробуйте змінити параметри пошуку</div>
+            <div class="scroll-hint-container">
+                <div class="overflow-x-auto w-full">
+                    <table class="w-full min-w-[1100px]">
+                        <thead class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white">
+                            <tr>
+                                <th class="px-2 py-2 text-left text-xs font-bold uppercase w-[40px]">Статус</th>
+                                <th class="px-2 py-2 text-left text-xs font-bold uppercase w-[90px]">Номер</th>
+                                <th class="px-2 py-2 text-left text-xs font-bold uppercase mobile-hidden w-[120px]">Модель</th>
+                                <th class="px-2 py-2 text-left text-xs font-bold uppercase mobile-hidden w-[50px]">Рік</th>
+                                <th class="px-2 py-2 text-left text-xs font-bold uppercase w-[80px]">Місто</th>
+                                <th class="px-2 py-2 text-left text-xs font-bold uppercase w-[80px]">Пробіг</th>
+                                ${tableHeaders}
+                                <th class="px-1 py-2 text-center text-xs font-bold uppercase mobile-hidden w-[50px]">✅</th>
+                                <th class="px-1 py-2 text-center text-xs font-bold uppercase mobile-hidden w-[50px]">⚠️</th>
+                                <th class="px-1 py-2 text-center text-xs font-bold uppercase mobile-hidden w-[50px]">⛔</th>
+                                <th class="px-1 py-2 text-center text-xs font-bold uppercase w-[50px]">📋</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200">
+                            ${tableRows}
+                        </tbody>
+                    </table>
+                </div>
+                <!-- Підказка тепер після таблиці з відступом зверху -->
+                <div class="scroll-hint">
+                    <div class="scroll-hint-content">
+                        <div class="scroll-hint-text">
+                            <span>↔️</span>
+                            <span>Гортай таблицю вправо</span>
+                            <span>→</span>
+                        </div>
+                    </div>
+                </div>
             </div>
         `;
     }
 
-    const tableHeaders = this.generateTableHeaders(importantParts);
-    const tableRows = cars.map((car, idx) => this.generateCarRow(car, idx, importantParts)).join('');
+    generateTableHeaders(importantParts) {
+        return importantParts.map(partName => {
+            let shortName, emoji;
 
-    return `
-        <div class="scroll-hint-container">
-            <div class="overflow-x-auto w-full">
-                <table class="w-full min-w-[1100px]">
-                    <thead class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white">
-                        <tr>
-                            <th class="px-2 py-2 text-left text-xs font-bold uppercase w-[40px]">Статус</th>
-                            <th class="px-2 py-2 text-left text-xs font-bold uppercase w-[90px]">Номер</th>
-                            <th class="px-2 py-2 text-left text-xs font-bold uppercase mobile-hidden w-[120px]">Модель</th>
-                            <th class="px-2 py-2 text-left text-xs font-bold uppercase mobile-hidden w-[50px]">Рік</th>
-                            <th class="px-2 py-2 text-left text-xs font-bold uppercase w-[80px]">Місто</th>
-                            <th class="px-2 py-2 text-left text-xs font-bold uppercase w-[80px]">Пробіг</th>
-                            ${tableHeaders}
-                            <th class="px-1 py-2 text-center text-xs font-bold uppercase mobile-hidden w-[50px]">✅</th>
-                            <th class="px-1 py-2 text-center text-xs font-bold uppercase mobile-hidden w-[50px]">⚠️</th>
-                            <th class="px-1 py-2 text-center text-xs font-bold uppercase mobile-hidden w-[50px]">⛔</th>
-                            <th class="px-1 py-2 text-center text-xs font-bold uppercase w-[50px]">📋</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-gray-200">
-                        ${tableRows}
-                    </tbody>
-                </table>
-            </div>
-            <!-- Підказка тепер після таблиці з відступом зверху -->
-            <div class="scroll-hint">
-                <div class="scroll-hint-content">
-                    <div class="scroll-hint-text">
-                        <span>↔️</span>
-                        <span>Гортай таблицю вправо</span>
-                        <span>→</span>
+            if (partName.includes('ТО')) {
+                shortName = 'ТО';
+                emoji = '🛢️';
+            } else if (partName.includes('ГРМ')) {
+                shortName = 'ГРМ';
+                emoji = '⚙️';
+            } else if (partName.includes('Помпа')) {
+                shortName = 'Помпа';
+                emoji = '💧';
+            } else if (partName.includes('Обвід')) {
+                shortName = 'Обвід';
+                emoji = '🔧';
+            } else if (partName.includes('Діагн')) {
+                shortName = 'Діаг';
+                emoji = '🔍';
+            } else if (partName.includes('Розвал')) {
+                shortName = 'Розв';
+                emoji = '📐';
+            } else if (partName.includes('Профілактика') || partName.includes('Супорт')) {
+                shortName = 'Супорт';
+                emoji = '🛠️';
+            } else {
+                shortName = partName.split(' ')[0];
+                emoji = '🔧';
+            }
+
+            return `
+                <th class="px-1 py-1 text-center text-[10px] font-bold uppercase w-[65px]">
+                    <div class="cursor-pointer hover:bg-white/10 p-0.5 rounded"
+                         onclick="event.stopPropagation(); app.showPartFilterMenu(event, '${partName}')">
+                        <div class="font-bold">${shortName}</div>
+                        <div class="opacity-70">${emoji}</div>
                     </div>
-                </div>
-            </div>
-        </div>
-    `;
-}
+                </th>
+            `;
+        }).join('');
+    }
 
-generateTableHeaders(importantParts) {
-    return importantParts.map(partName => {
-        let shortName, emoji;
+    generateCarRow(car, idx, importantParts) {
+        const parts = Object.values(car.parts).filter(p => p !== null);
+        const criticalCount = parts.filter(p => p.status === 'critical').length;
+        const warningCount = parts.filter(p => p.status === 'warning').length;
+        const goodCount = parts.filter(p => p.status === 'good').length;
 
-        if (partName.includes('ТО')) {
-            shortName = 'ТО';
-            emoji = '🛢️';
-        } else if (partName.includes('ГРМ')) {
-            shortName = 'ГРМ';
-            emoji = '⚙️';
-        } else if (partName.includes('Помпа')) {
-            shortName = 'Помпа';
-            emoji = '💧';
-        } else if (partName.includes('Обвід')) {
-            shortName = 'Обвід';
-            emoji = '🔧';
-        } else if (partName.includes('Діагн')) {
-            shortName = 'Діаг';
-            emoji = '🔍';
-        } else if (partName.includes('Розвал')) {
-            shortName = 'Розв';
-            emoji = '📐';
-        } else if (partName.includes('Профілактика') || partName.includes('Супорт')) {
-            shortName = 'Супорт';
-            emoji = '🛠️';
-        } else {
-            shortName = partName.split(' ')[0];
-            emoji = '🔧';
-        }
+        const statusColor = criticalCount > 0 ? 'bg-red-500' : warningCount > 0 ? 'bg-orange-500' : 'bg-green-500';
+        
+        const rowBg = idx % 2 === 0 ? 'bg-gray-50' : 'bg-white';
+
+        const partCells = importantParts.map(partName => {
+            const part = car.parts[partName];
+            const isMonths = partName.includes('Діагностика') || partName.includes('Розвал') || partName.includes('Профілактика');
+            const display = this.getPartDisplay(part, isMonths);
+            return `<td class="px-1 py-2 text-center">
+                        <div class="${display.bg} ${display.color} font-semibold ${display.textSize} py-1 px-0.5 rounded whitespace-nowrap overflow-hidden text-ellipsis max-w-[60px] mx-auto">
+                            ${display.text}
+                        </div>
+                    </td>`;
+        }).join('');
 
         return `
-            <th class="px-1 py-1 text-center text-[10px] font-bold uppercase w-[65px]">
-                <div class="cursor-pointer hover:bg-white/10 p-0.5 rounded"
-                     onclick="event.stopPropagation(); app.showPartFilterMenu(event, '${partName}')">
-                    <div class="font-bold">${shortName}</div>
-                    <div class="opacity-70">${emoji}</div>
-                </div>
-            </th>
+            <tr class="${rowBg} hover:bg-blue-50 cursor-pointer transition-colors"
+                onclick="app.setState({ selectedCar: '${car.car}' });">
+                <td class="px-2 py-3"><div class="${statusColor} w-2.5 h-2.5 rounded-full"></div></td>
+                <td class="px-2 py-3">
+                    <div class="font-bold text-gray-800 text-sm whitespace-nowrap overflow-hidden text-ellipsis max-w-[85px]"
+                         title="${car.license}">${car.license}</div>
+                </td>
+                <td class="px-2 py-3 mobile-hidden">
+                    <div class="text-gray-700 text-xs whitespace-nowrap overflow-hidden text-ellipsis max-w-[115px]"
+                         title="${car.model}">${car.model}</div>
+                </td>
+                <td class="px-2 py-3 mobile-hidden">
+                    <div class="text-gray-600 text-xs whitespace-nowrap">${car.year || '-'}</div>
+                </td>
+                <td class="px-2 py-3">
+                    <div class="text-gray-700 text-xs whitespace-nowrap flex items-center gap-1 max-w-[75px]">
+                        <span class="text-[10px]">📍</span>
+                        <span class="font-medium truncate" title="${car.city || '-'}">${car.city || '-'}</span>
+                    </div>
+                </td>
+                <td class="px-2 py-3">
+                    <div class="font-semibold text-gray-800 text-xs whitespace-nowrap overflow-hidden text-ellipsis max-w-[75px]">
+                        ${this.formatMileage(car.currentMileage)}
+                    </div>
+                </td>
+                ${partCells}
+                <td class="px-1 py-3 text-center mobile-hidden">
+                    <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-green-100 text-green-700 font-bold text-xs">
+                        ${goodCount}
+                    </span>
+                </td>
+                <td class="px-1 py-3 text-center mobile-hidden">
+                    <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-orange-100 text-orange-700 font-bold text-xs">
+                        ${warningCount}
+                    </span>
+                </td>
+                <td class="px-1 py-3 text-center mobile-hidden">
+                    <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-red-100 text-red-700 font-bold text-xs">
+                        ${criticalCount}
+                    </span>
+                </td>
+                <td class="px-1 py-3 text-center">
+                    <div class="text-blue-600 font-semibold text-xs whitespace-nowrap">
+                        ${car.history.length}
+                    </div>
+                </td>
+            </tr>
         `;
-    }).join('');
-}
-
-generateCarRow(car, idx, importantParts) {
-    const parts = Object.values(car.parts).filter(p => p !== null);
-    const criticalCount = parts.filter(p => p.status === 'critical').length;
-    const warningCount = parts.filter(p => p.status === 'warning').length;
-    const goodCount = parts.filter(p => p.status === 'good').length;
-
-    const statusColor = criticalCount > 0 ? 'bg-red-500' : warningCount > 0 ? 'bg-orange-500' : 'bg-green-500';
-    
-    const rowBg = idx % 2 === 0 ? 'bg-gray-50' : 'bg-white';
-
-    const partCells = importantParts.map(partName => {
-    const part = car.parts[partName];
-    const isMonths = partName.includes('Діагностика') || partName.includes('Розвал') || partName.includes('Профілактика');
-    const display = this.getPartDisplay(part, isMonths);
-    return `<td class="px-1 py-2 text-center">
-                <div class="${display.bg} ${display.color} font-semibold ${display.textSize} py-1 px-0.5 rounded whitespace-nowrap overflow-hidden text-ellipsis max-w-[60px] mx-auto">
-                    ${display.text}
-                </div>
-            </td>`;
-}).join('');
-
-    return `
-        <tr class="${rowBg} hover:bg-blue-50 cursor-pointer transition-colors"
-            onclick="app.setState({ selectedCar: '${car.car}' }); app.render();">
-            <td class="px-2 py-3"><div class="${statusColor} w-2.5 h-2.5 rounded-full"></div></td>
-            <td class="px-2 py-3">
-                <div class="font-bold text-gray-800 text-sm whitespace-nowrap overflow-hidden text-ellipsis max-w-[85px]"
-                     title="${car.license}">${car.license}</div>
-            </td>
-            <td class="px-2 py-3 mobile-hidden">
-                <div class="text-gray-700 text-xs whitespace-nowrap overflow-hidden text-ellipsis max-w-[115px]"
-                     title="${car.model}">${car.model}</div>
-            </td>
-            <td class="px-2 py-3 mobile-hidden">
-                <div class="text-gray-600 text-xs whitespace-nowrap">${car.year || '-'}</div>
-            </td>
-            <td class="px-2 py-3">
-                <div class="text-gray-700 text-xs whitespace-nowrap flex items-center gap-1 max-w-[75px]">
-                    <span class="text-[10px]">📍</span>
-                    <span class="font-medium truncate" title="${car.city || '-'}">${car.city || '-'}</span>
-                </div>
-            </td>
-            <td class="px-2 py-3">
-                <div class="font-semibold text-gray-800 text-xs whitespace-nowrap overflow-hidden text-ellipsis max-w-[75px]">
-                    ${this.formatMileage(car.currentMileage)}
-                </div>
-            </td>
-            ${partCells}
-            <td class="px-1 py-3 text-center mobile-hidden">
-                <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-green-100 text-green-700 font-bold text-xs">
-                    ${goodCount}
-                </span>
-            </td>
-            <td class="px-1 py-3 text-center mobile-hidden">
-                <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-orange-100 text-orange-700 font-bold text-xs">
-                    ${warningCount}
-                </span>
-            </td>
-            <td class="px-1 py-3 text-center mobile-hidden">
-                <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-red-100 text-red-700 font-bold text-xs">
-                    ${criticalCount}
-                </span>
-            </td>
-            <td class="px-1 py-3 text-center">
-                <div class="text-blue-600 font-semibold text-xs whitespace-nowrap">
-                    ${car.history.length}
-                </div>
-            </td>
-        </tr>
-    `;
-}
+    }
 
     getPartDisplay(part, isMonths = false) {
-    if (!part) return { color: 'text-gray-400', text: '-', bg: 'bg-gray-100', textSize: 'text-table-value' };
+        if (!part) return { color: 'text-gray-400', text: '-', bg: 'bg-gray-100', textSize: 'text-table-value' };
 
-    let color = 'text-green-600', bg = 'bg-green-100';
-    if (part.status === 'warning') { color = 'text-orange-600'; bg = 'bg-orange-100'; }
-    else if (part.status === 'critical') { color = 'text-red-600'; bg = 'bg-red-100'; }
+        let color = 'text-green-600', bg = 'bg-green-100';
+        if (part.status === 'warning') { color = 'text-orange-600'; bg = 'bg-orange-100'; }
+        else if (part.status === 'critical') { color = 'text-red-600'; bg = 'bg-red-100'; }
 
-    const text = isMonths ?
-        Math.floor(part.daysDiff / 30) + 'міс' :
-        this.formatMileageDiff(part.mileageDiff);
+        const text = isMonths ?
+            Math.floor(part.daysDiff / 30) + 'міс' :
+            this.formatMileageDiff(part.mileageDiff);
 
-    return { color, text, bg, textSize: 'text-table-value' };
-}
+        return { color, text, bg, textSize: 'text-table-value' };
+    }
 
     generateCarDetailHTML(car) {
         const { selectedHistoryPartFilter, historySearchTerm } = this.state;
@@ -1126,10 +1126,13 @@ generateCarRow(car, idx, importantParts) {
                     <input
                         type="text"
                         value="${this.state.historySearchTerm}"
-                        oninput="app.debouncedHistorySearch(this.value)"
+                        oninput="app.setState({ historySearchTerm: this.value })"
                         placeholder="Пошук за текстом, датою або пробігом..."
                         class="flex-1 px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-800"
                         id="historySearchInput"
+                        autocomplete="off"
+                        autocorrect="off"
+                        spellcheck="false"
                     >
                     ${this.state.historySearchTerm ? `
                         <button onclick="app.setState({ historySearchTerm: '' });"
@@ -1412,7 +1415,6 @@ generateCarRow(car, idx, importantParts) {
         this.render();
     }
 
-    
     clearPartFilter() {
         this.setState({ selectedPartFilter: null });
     }
@@ -1437,19 +1439,19 @@ generateCarRow(car, idx, importantParts) {
             <div class="text-sm font-bold text-gray-800 mb-2 pb-2 border-b">Фільтр: ${partName.split(' ')[0]}</div>
             <div class="space-y-1">
                 <div class="px-3 py-2 hover:bg-blue-50 rounded cursor-pointer transition-colors text-sm flex items-center gap-2"
-                     onclick="app.setState({ selectedPartFilter: { partName: '${partName}', status: 'all' } }); app.render(); setTimeout(() => { document.getElementById('partFilterMenu')?.remove(); }, 100);">
+                     onclick="app.setState({ selectedPartFilter: { partName: '${partName}', status: 'all' } }); setTimeout(() => { document.getElementById('partFilterMenu')?.remove(); }, 100);">
                     📋 <span>Всі записи</span>
                 </div>
                 <div class="px-3 py-2 hover:bg-green-50 rounded cursor-pointer transition-colors text-sm flex items-center gap-2"
-                     onclick="app.setState({ selectedPartFilter: { partName: '${partName}', status: 'good' } }); app.render(); setTimeout(() => { document.getElementById('partFilterMenu')?.remove(); }, 100);">
+                     onclick="app.setState({ selectedPartFilter: { partName: '${partName}', status: 'good' } }); setTimeout(() => { document.getElementById('partFilterMenu')?.remove(); }, 100);">
                     ✅ <span>У нормі</span>
                 </div>
                 <div class="px-3 py-2 hover:bg-orange-50 rounded cursor-pointer transition-colors text-sm flex items-center gap-2"
-                     onclick="app.setState({ selectedPartFilter: { partName: '${partName}', status: 'warning' } }); app.render(); setTimeout(() => { document.getElementById('partFilterMenu')?.remove(); }, 100);">
+                     onclick="app.setState({ selectedPartFilter: { partName: '${partName}', status: 'warning' } }); setTimeout(() => { document.getElementById('partFilterMenu')?.remove(); }, 100);">
                     ⚠️ <span>Увага</span>
                 </div>
                 <div class="px-3 py-2 hover:bg-red-50 rounded cursor-pointer transition-colors text-sm flex items-center gap-2"
-                     onclick="app.setState({ selectedPartFilter: { partName: '${partName}', status: 'critical' } }); app.render(); setTimeout(() => { document.getElementById('partFilterMenu')?.remove(); }, 100);">
+                     onclick="app.setState({ selectedPartFilter: { partName: '${partName}', status: 'critical' } }); setTimeout(() => { document.getElementById('partFilterMenu')?.remove(); }, 100);">
                     ⛔ <span>Критично</span>
                 </div>
             </div>
