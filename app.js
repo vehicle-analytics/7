@@ -824,7 +824,7 @@ class CarAnalyticsApp {
                 if (monthsDiff > 3) return 'critical';
                 if (monthsDiff >= 2) return 'warning';
                 return 'good';
-            case 'Розвал-сходження 📐': case 'Профілактика супортів 🛠️': case "Комп'ютерна діагностика 💻": case 'Прожиг сажового 🔥':
+            case 'Розвал-сходження 📐': case 'Профілактика супортів 🛠️': case "Компютерна діагностика 💻": case 'Прожиг сажового 🔥':
                 if (monthsDiff > 4) return 'critical';
                 if (monthsDiff >= 2) return 'warning';
                 return 'good';
