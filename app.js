@@ -929,25 +929,40 @@ class CarAnalyticsApp {
     }
 
     generateCarListHTML(allCars, filteredCars, cities, stats) {
-        const importantParts = CONSTANTS.PARTS_ORDER.slice(0, 7);
+    // Розрахунок часу до наступного оновлення
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const refreshTime = new Date(today);
+    const [hours, minutes] = window.CONFIG.REFRESH_TIME.split(':').map(Number);
+    refreshTime.setHours(hours, minutes, 0, 0);
+    
+    if (now >= refreshTime) {
+        refreshTime.setDate(refreshTime.getDate() + 1);
+    }
+    
+    const hoursUntil = Math.floor((refreshTime - now) / (1000 * 60 * 60));
+    const minutesUntil = Math.floor(((refreshTime - now) % (1000 * 60 * 60)) / (1000 * 60));
+    
+    const nextRefreshInfo = `Наступне оновлення: ${window.CONFIG.REFRESH_TIME} (через ${hoursUntil}г ${minutesUntil}хв)`;
 
-        return `
-            <div class="min-h-screen bg-gray-50">
-                <div class="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-b-xl shadow-xl p-4 mb-6">
-                    <div class="w-full px-2 sm:px-4">
-                        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                            <div>
-                                <h1 class="text-2xl sm:text-3xl font-bold text-white mb-1">🚗 Список автомобілів</h1>
-                                <p class="text-blue-100 text-sm">Натисніть на рядок для перегляду деталей</p>
-                            </div>
-                            <div class="text-right">
-                                <div class="text-blue-100 text-xs">Дата оновлення</div>
-                                <div class="text-white text-lg font-bold">${this.appData.currentDate}</div>
-                                <div class="text-blue-200 text-xs">${allCars.length} авто • ${this.appData._meta.totalRecords} записів</div>
-                            </div>
+    return `
+        <div class="min-h-screen bg-gray-50">
+            <div class="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-b-xl shadow-xl p-4 mb-6">
+                <div class="w-full px-2 sm:px-4">
+                    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                        <div>
+                            <h1 class="text-2xl sm:text-3xl font-bold text-white mb-1">🚗 Список автомобілів</h1>
+                            <p class="text-blue-100 text-sm">Натисніть на рядок для перегляду деталей</p>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-blue-100 text-xs">Дата оновлення</div>
+                            <div class="text-white text-lg font-bold">${this.appData.currentDate}</div>
+                            <div class="text-blue-200 text-xs">${allCars.length} авто • ${this.appData._meta.totalRecords} записів</div>
+                            <div class="text-blue-100 text-xs mt-1">${nextRefreshInfo}</div>
                         </div>
                     </div>
                 </div>
+            </div>
 
                 <div class="w-full px-3 sm:px-4">
                     <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
