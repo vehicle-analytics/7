@@ -224,24 +224,16 @@
     <script>
         // КОНФІГУРАЦІЯ - ЗМІНІТЬ ЦІ ЗНАЧЕННЯ!
         window.CONFIG = {
-            // Ваш API ключ Google Sheets
-            API_KEY: 'AIzaSyAcM3YFOqIGqIP8D4StSRlSywNtS8v8_rk',
-            
-            // ID вашої Google таблиці
-            SPREADSHEET_ID: '1_eeYNHe1HBXhKU5FD218J3fQaOL7PgBekpQz-rlyIuY',
-            
-            // Назви аркушів в таблиці
-            SHEETS: {
-                SCHEDULE: 'ГРАФІК ОБСЛУГОВУВАННЯ',
-                HISTORY: 'Ответы на форму (1)',
-                REGULATIONS: 'Регламент ТО'
-            },
-            
-            // Інтервал оновлення даних (хвилини)
-            REFRESH_INTERVAL: 5,
-            
-            // Режим розробника
-            DEBUG: true
+        API_KEY: 'AIzaSyAcM3YFOqIGqIP8D4StSRlSywNtS8v8_rk',
+        SPREADSHEET_ID: '1_eeYNHe1HBXhKU5FD218J3fQaOL7PgBekpQz-rlyIuY',
+        SHEETS: {
+            SCHEDULE: 'ГРАФІК ОБСЛУГОВУВАННЯ',
+            HISTORY: 'Ответы на форму (1)',
+            REGULATIONS: 'Регламент ТО'
+        },
+        // ЗМІНА: Замість інтервалу тепер час оновлення
+        REFRESH_TIME: '06:00', // Оновлювати щодня о 06:00
+        DEBUG: true
         };
         
         // Константи з оригінального скрипта
