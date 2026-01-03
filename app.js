@@ -1,6 +1,6 @@
 /**
  * 🚗 Аналітична панель відстеження запчастин
- * Версія 3.6 - Виправлено фокус у полях пошуку
+ * Версія 5.0 - Розширені регламенти з патернами авто
  */
 
 class CarAnalyticsApp {
@@ -9,6 +9,7 @@ class CarAnalyticsApp {
         this.cachedData = null;
         this.processedCars = null;
         this.filteredCars = null;
+        this.maintenanceRegulations = []; // НОВЕ: список регламентів
         
         this.state = {
             searchTerm: '',
@@ -21,7 +22,6 @@ class CarAnalyticsApp {
             currentView: 'list'
         };
 
-        // Для збереження фокусу
         this.focusInfo = null;
         this.renderScheduled = false;
 
@@ -46,113 +46,6 @@ class CarAnalyticsApp {
         this.startAutoRefresh();
     }
 
-    // ВИПРАВЛЕНА функція для парсингу чисел
-    parseNumber(value) {
-        if (value === null || value === undefined || value === '') {
-            return 0;
-        }
-        
-        // Якщо вже число
-        if (typeof value === 'number') {
-            return isNaN(value) ? 0 : value;
-        }
-        
-        // Конвертуємо в рядок і очищаємо
-        const cleanStr = String(value)
-            .trim()
-            .replace(/\s+/g, '') // Видаляємо всі пробіли
-            .replace(/,/g, '.'); // Замінюємо коми на крапки
-        
-        const parsed = parseFloat(cleanStr);
-        return isNaN(parsed) ? 0 : parsed;
-    }
-
-    convertToThousands(value) {
-        if (value === null || value === undefined || isNaN(value)) {
-            return 0;
-        }
-        return value;
-    }
-
-    formatNumber(number) {
-        if (number === null || number === undefined || isNaN(number)) {
-            return '-';
-        }
-        const roundedNumber = Math.round(number);
-        return roundedNumber.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
-    }
-
-    formatMileage(mileage) {
-        if (mileage === null || mileage === undefined || isNaN(mileage)) {
-            return '- км';
-        }
-        const convertedMileage = this.convertToThousands(mileage);
-        const formatted = this.formatNumber(convertedMileage);
-        return `${formatted} км`;
-    }
-
-    getOriginalMileage(mileage) {
-        if (mileage === null || mileage === undefined || isNaN(mileage)) {
-            return 0;
-        }
-        return this.convertToThousands(mileage);
-    }
-
-    formatMileageDiff(mileageDiff) {
-        if (mileageDiff === null || mileageDiff === undefined || isNaN(mileageDiff)) {
-            return '- км';
-        }
-        const formatted = this.formatNumber(mileageDiff);
-        return `${formatted} км`;
-    }
-
-    // ВИПРАВЛЕНА функція форматування ціни
-    formatPrice(price) {
-        if (price === null || price === undefined || isNaN(price) || price === 0) {
-            return '';
-        }
-        
-        // Округлюємо до 2 знаків після коми
-        const rounded = Math.round(price * 100) / 100;
-        
-        // Форматуємо з пробілами для тисяч
-        const parts = rounded.toFixed(2).split('.');
-        parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
-        
-        return parts.join('.');
-    }
-
-    setupEventListeners() {
-        document.getElementById('refresh-data')?.addEventListener('click', () => {
-            this.refreshData(true);
-        });
-
-        document.getElementById('clear-cache')?.addEventListener('click', () => {
-            this.clearCache();
-        });
-
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && this.state.selectedCar) {
-                this.state.selectedCar = null;
-                this.state.selectedHistoryPartFilter = null;
-                this.state.historySearchTerm = '';
-                this.render();
-            }
-
-            if (e.ctrlKey && e.key === 'r') {
-                e.preventDefault();
-                this.refreshData(true);
-            }
-        });
-    }
-
-    updateLoadingProgress(percent) {
-        const bar = document.getElementById('loading-bar');
-        if (bar) {
-            bar.style.width = `${percent}%`;
-        }
-    }
-
     async loadData() {
         console.log('📥 Завантаження даних...');
 
@@ -161,6 +54,7 @@ class CarAnalyticsApp {
             if (cached) {
                 console.log('✅ Використано кешовані дані');
                 this.appData = cached;
+                this.maintenanceRegulations = cached.regulations || [];
                 this.updateCacheInfo();
                 return;
             }
@@ -179,400 +73,219 @@ class CarAnalyticsApp {
 
         console.log('📋 Завантаження даних з Google Sheets...');
 
-        const [scheduleData, historyData] = await Promise.all([
+        const [scheduleData, historyData, regulationsData] = await Promise.all([
             this.fetchSheetData(SPREADSHEET_ID, SHEETS.SCHEDULE, API_KEY),
-            this.fetchSheetData(SPREADSHEET_ID, SHEETS.HISTORY, API_KEY)
+            this.fetchSheetData(SPREADSHEET_ID, SHEETS.HISTORY, API_KEY),
+            this.fetchSheetData(SPREADSHEET_ID, SHEETS.REGULATIONS, API_KEY)
         ]);
 
         console.log('✅ Дані отримано:', {
             scheduleRows: scheduleData?.length || 0,
-            historyRows: historyData?.length || 0
+            historyRows: historyData?.length || 0,
+            regulationsRows: regulationsData?.length || 0
         });
 
-        this.processData(scheduleData, historyData);
+        this.processData(scheduleData, historyData, regulationsData);
         this.cacheData(this.appData);
         console.log('✅ Дані успішно оброблено');
         this.updateCacheInfo();
     }
 
-    async fetchSheetData(spreadsheetId, sheetName, apiKey) {
-        try {
-            const url = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${encodeURIComponent(sheetName)}?key=${apiKey}`;
-            console.log(`📥 Запит до: ${sheetName}`);
-
-            const response = await fetch(url);
-            if (!response.ok) {
-                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-            }
-
-            const data = await response.json();
-            return data.values || [];
-        } catch (error) {
-            console.error(`❌ Помилка завантаження аркуша ${sheetName}:`, error);
-            return [];
-        }
-    }
-
-    processData(scheduleData, historyData) {
-        console.log('🔧 Обробка даних...');
-
-        if (!scheduleData || !historyData) {
-            throw new Error('Немає даних для обробки');
+    processRegulations(regulationsData) {
+        if (!regulationsData || regulationsData.length <= 1) {
+            console.log('⚠️ Регламенти не знайдені, використовуються стандартні');
+            this.maintenanceRegulations = [];
+            return;
         }
 
-        const carsInfo = {};
-        const carCities = {};
+        const regulations = [];
+        const header = regulationsData[0];
+        
+        // Мапимо індекси колонок за назвами заголовків
+        const columnIndexes = {};
+        header.forEach((col, index) => {
+            columnIndexes[col.trim()] = index;
+        });
 
-        for (let i = 1; i < scheduleData.length; i++) {
-            const row = scheduleData[i];
+        // Обробляємо рядки з даними
+        for (let i = 1; i < regulationsData.length; i++) {
+            const row = regulationsData[i];
             if (row.length < 5) continue;
 
-            const license = String(row[CONSTANTS.SCHEDULE_COL_LICENSE] || '').trim();
-            if (license) {
-                const city = String(row[CONSTANTS.SCHEDULE_COL_CITY] || '').trim();
-                carsInfo[license] = {
-                    city: city,
-                    license: license,
-                    model: String(row[CONSTANTS.SCHEDULE_COL_MODEL] || '').trim(),
-                    year: String(row[CONSTANTS.SCHEDULE_COL_YEAR] || '').trim()
-                };
-                carCities[license] = city;
+            const regulation = {
+                licensePattern: row[columnIndexes['Держ номер']]?.trim() || '*',
+                brandPattern: row[columnIndexes['Марка (паттерн)']]?.trim() || '*',
+                modelPattern: row[columnIndexes['Модель (паттерн)']]?.trim() || '*',
+                yearFrom: this.parseNumber(row[columnIndexes['Рік від']]) || 0,
+                yearTo: this.parseNumber(row[columnIndexes['Рік до']]) || 2100,
+                partName: row[columnIndexes['Деталь (робота)']]?.trim(),
+                periodType: row[columnIndexes['Тип періоду']]?.trim() || 'пробіг',
+                normalValue: this.parseNumber(row[columnIndexes['У нормі']]),
+                warningValue: this.parseNumber(row[columnIndexes['Увага']]),
+                criticalValue: this.parseNumber(row[columnIndexes['Критично']]),
+                unit: row[columnIndexes['Одиниця']]?.trim() || 'км',
+                priority: this.parseNumber(row[columnIndexes['Пріоритет']]) || 2
+            };
+
+            // Конвертуємо "ланцюг" в спеціальне значення
+            if (regulation.normalValue === 'ланцюг' || String(row[columnIndexes['У нормі']] || '').trim() === 'ланцюг') {
+                regulation.normalValue = 'chain';
+                regulation.warningValue = null;
+                regulation.criticalValue = null;
             }
+
+            regulations.push(regulation);
         }
 
-        const allowedCars = Object.keys(carsInfo);
-        const records = [];
-        const currentMileages = {};
-        const allowedCarsSet = new Set(allowedCars);
-
-        for (let i = 1; i < historyData.length; i++) {
-            const row = historyData[i];
-            if (row.length < 8) continue;
-
-            const car = String(row[CONSTANTS.COL_CAR] || '').trim();
-            if (!car || !allowedCarsSet.has(car)) continue;
-
-            const mileageStr = String(row[CONSTANTS.COL_MILEAGE] || '').trim();
-            let mileage = 0;
-
-            if (mileageStr) {
-                const cleanStr = mileageStr.replace(/[\s,]/g, '');
-                mileage = parseFloat(cleanStr);
-                if (isNaN(mileage)) continue;
-                mileage = this.convertToThousands(mileage);
-            }
-
-            if (mileage === 0) continue;
-
-            let date = row[CONSTANTS.COL_DATE];
-            if (date) {
-                const dateObj = this.parseDate(date);
-                if (dateObj) {
-                    date = dateObj.toISOString().split('T')[0];
-                } else {
-                    date = String(date).trim();
-                }
-            }
-
-            const city = carCities[car] || '';
-
-            // ВИПРАВЛЕНО: використовуємо parseNumber для всіх числових значень
-            const quantity = row.length > CONSTANTS.COL_QUANTITY ? this.parseNumber(row[CONSTANTS.COL_QUANTITY]) : 0;
-            const price = row.length > CONSTANTS.COL_PRICE ? this.parseNumber(row[CONSTANTS.COL_PRICE]) : 0;
-            const totalWithVAT = row.length > CONSTANTS.COL_TOTAL_WITH_VAT ? this.parseNumber(row[CONSTANTS.COL_TOTAL_WITH_VAT]) : 0;
-
-            records.push({
-                date: date || '',
-                city: city,
-                car: car,
-                mileage: mileage,
-                originalMileage: mileageStr,
-                description: String(row[CONSTANTS.COL_DESCRIPTION] || ''),
-                partCode: row.length > CONSTANTS.COL_PART_CODE ? String(row[CONSTANTS.COL_PART_CODE] || '').trim() : '',
-                unit: row.length > CONSTANTS.COL_UNIT ? String(row[CONSTANTS.COL_UNIT] || '').trim() : '',
-                quantity: quantity,
-                price: price,
-                totalWithVAT: totalWithVAT,
-                status: row.length > CONSTANTS.COL_STATUS ? String(row[CONSTANTS.COL_STATUS] || '').trim() : ''
-            });
-
-            if (mileage > (currentMileages[car] || 0)) {
-                currentMileages[car] = mileage;
-            }
-        }
-
-        this.appData = {
-            records: records,
-            currentMileages: currentMileages,
-            carsInfo: carsInfo,
-            partKeywords: CONSTANTS.PARTS_CONFIG,
-            partsOrder: CONSTANTS.PARTS_ORDER,
-            currentDate: new Date().toISOString().split('T')[0],
-            lastUpdated: new Date().toISOString(),
-            _meta: {
-                totalCars: allowedCars.length,
-                totalRecords: records.length,
-                processingTime: Date.now()
-            }
-        };
-
-        document.getElementById('cars-count').textContent = allowedCars.length;
+        // Сортуємо за пріоритетом (нижчий пріоритет = вищий)
+        regulations.sort((a, b) => a.priority - b.priority);
         
-        this.processedCars = null;
-        this.filteredCars = null;
+        this.maintenanceRegulations = regulations;
+        console.log('✅ Завантажено регламентів:', regulations.length);
     }
 
-    parseDate(dateString) {
-        if (!dateString) return null;
-
-        const formats = [
-            () => new Date(dateString),
-            () => {
-                const parts = dateString.split('.');
-                if (parts.length === 3) {
-                    return new Date(parts[2], parts[1] - 1, parts[0]);
-                }
-                return null;
-            },
-            () => {
-                const parts = dateString.split('-');
-                if (parts.length === 3) {
-                    return new Date(parts[0], parts[1] - 1, parts[2]);
-                }
-                return null;
-            }
-        ];
-
-        for (const format of formats) {
-            try {
-                const date = format();
-                if (date && !isNaN(date.getTime())) {
-                    return date;
-                }
-            } catch (e) {
-                // Продовжуємо спроби
-            }
+    // НОВА функція для пошуку регламенту для конкретного авто
+    findRegulationForCar(license, model, year, partName) {
+        if (!this.maintenanceRegulations || this.maintenanceRegulations.length === 0) {
+            return null;
         }
 
+        const carYear = parseInt(year) || 0;
+        
+        for (const regulation of this.maintenanceRegulations) {
+            // Перевіряємо чи відповідає регламент деталі
+            if (regulation.partName !== partName) continue;
+            
+            // Перевіряємо номер авто (паттерн)
+            if (regulation.licensePattern !== '*') {
+                if (regulation.licensePattern !== license) continue;
+            }
+            
+            // Перевіряємо марку (регулярний вираз)
+            if (regulation.brandPattern !== '*') {
+                const brandRegex = new RegExp(regulation.brandPattern, 'i');
+                if (!brandRegex.test(model)) continue;
+            }
+            
+            // Перевіряємо модель (регулярний вираз)
+            if (regulation.modelPattern !== '*') {
+                const modelRegex = new RegExp(regulation.modelPattern, 'i');
+                if (!modelRegex.test(model)) continue;
+            }
+            
+            // Перевіряємо рік
+            if (carYear < regulation.yearFrom || carYear > regulation.yearTo) continue;
+            
+            // Знайшли відповідний регламент
+            return regulation;
+        }
+        
         return null;
     }
 
-    getCachedData() {
-        try {
-            const cached = localStorage.getItem('carAnalyticsData');
-            if (!cached) return null;
-
-            const data = JSON.parse(cached);
-            const cacheTime = new Date(data.lastUpdated).getTime();
-            const currentTime = Date.now();
-            const maxAge = 5 * 60 * 1000;
-
-            if (currentTime - cacheTime > maxAge) {
-                console.log(`⚠️ Кеш застарів (${Math.floor((currentTime - cacheTime) / 1000 / 60)} хв)`);
-                return null;
+    // ОНОВЛЕНА функція для визначення статусу
+    getPartStatus(partName, mileageDiff, daysDiff, carYear, carModel, license) {
+        const monthsDiff = daysDiff / 30;
+        const yearsDiff = daysDiff / 365;
+        
+        // Шукаємо регламент для цього авто та деталі
+        const regulation = this.findRegulationForCar(license, carModel, carYear, partName);
+        
+        if (regulation) {
+            // Якщо знайшли регламент - використовуємо його
+            if (regulation.normalValue === 'chain') {
+                // Для ланцюга ГРМ - завжди "У нормі"
+                return 'good';
             }
-
-            return data;
-        } catch (error) {
-            console.warn('⚠️ Помилка читання кешу:', error);
-            return null;
-        }
-    }
-
-    cacheData(data) {
-        try {
-            const dataString = JSON.stringify(data);
-            localStorage.setItem('carAnalyticsData', dataString);
-            localStorage.setItem('carAnalyticsCacheTime', new Date().toISOString());
-            console.log('💾 Дані збережено в кеш');
-        } catch (error) {
-            console.warn('⚠️ Помилка збереження кешу:', error);
-        }
-    }
-
-    clearCache() {
-        try {
-            localStorage.removeItem('carAnalyticsData');
-            localStorage.removeItem('carAnalyticsCacheTime');
-            this.processedCars = null;
-            this.filteredCars = null;
-            console.log('🗑️ Кеш очищено');
-            this.showNotification('Кеш успішно очищено', 'success');
-            this.updateCacheInfo();
-        } catch (error) {
-            console.error('❌ Помилка очищення кешу:', error);
-            this.showNotification('Помилка очищення кешу', 'error');
-        }
-    }
-
-    updateCacheInfo() {
-        try {
-            const cacheTime = localStorage.getItem('carAnalyticsCacheTime');
-            if (cacheTime) {
-                const time = new Date(cacheTime);
-                const now = new Date();
-                const diffMinutes = Math.floor((now - time) / (1000 * 60));
-                console.log(`⏰ Кеш оновлено ${diffMinutes} хвилин тому`);
+            
+            // Визначаємо значення в залежності від типу періоду
+            let currentValue;
+            if (regulation.periodType === 'місяць') {
+                currentValue = monthsDiff;
+            } else if (regulation.periodType === 'рік') {
+                currentValue = yearsDiff;
+            } else {
+                // Пробіг за замовчуванням
+                currentValue = mileageDiff;
             }
-        } catch (error) {
-            // Ігноруємо помилки
-        }
-    }
-
-    render() {
-        if (!this.appData) {
-            this.showError('Дані не завантажено');
-            return;
-        }
-
-        if (this.appData._meta.totalCars === 0) {
-            this.renderNoData();
-            return;
-        }
-
-        if (this.state.selectedCar) {
-            this.renderCarDetail();
-        } else {
-            this.renderCarList();
-        }
-    }
-
-    renderNoData() {
-        const html = `
-            <div class="min-h-screen flex flex-col items-center justify-center p-4 bg-gray-900">
-                <div class="text-center max-w-md">
-                    <div class="text-4xl mb-4">🚫</div>
-                    <h1 class="text-2xl font-bold text-white mb-2">Немає даних</h1>
-                    <p class="text-blue-200 text-sm mb-6">Не знайдено автомобілів для відображення</p>
-                    <div class="bg-white/10 rounded-xl p-4 backdrop-blur-sm">
-                        <div class="text-white text-sm mb-3">
-                            Можливі причини:
-                            <ul class="text-left mt-2 text-blue-200">
-                                <li>• Аркуш "ГРАФІК ОБСЛУГОВУВАННЯ" порожній</li>
-                                <li>• Неправильні назви аркушів</li>
-                                <li>• Проблеми з API ключем</li>
-                            </ul>
-                        </div>
-                        <button onclick="app.refreshData(true)"
-                                class="mt-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors w-full">
-                            🔄 Спробувати знову
-                        </button>
-                    </div>
-                </div>
-            </div>
-        `;
-
-        document.getElementById('main-interface').innerHTML = html;
-    }
-
-    renderCarList() {
-        if (!this.processedCars) {
-            this.processedCars = this.processCarData();
+            
+            // Визначаємо статус
+            if (currentValue >= regulation.criticalValue) return 'critical';
+            if (currentValue >= regulation.warningValue) return 'warning';
+            return 'good';
         }
         
-        const data = this.processedCars;
-        const filteredData = this.filterCars(data);
-        const cities = this.getCities(data);
-        const stats = this.calculateStats(data);
-
-        const html = this.generateCarListHTML(data, filteredData, cities, stats);
-        document.getElementById('main-interface').innerHTML = html;
-        
-        // Відновлюємо фокус після рендеру
-        this.restoreFocus();
+        // Якщо не знайшли регламент - використовуємо старі правила
+        return this.getPartStatusLegacy(partName, mileageDiff, daysDiff, carYear, carModel);
     }
 
-    renderCarDetail() {
-        if (!this.processedCars) {
-            this.processedCars = this.processCarData();
+    // Залишаємо стару функцію для зворотньої сумісності
+    getPartStatusLegacy(partName, mileageDiff, daysDiff, carYear, carModel) {
+        const monthsDiff = daysDiff / 30;
+        const isMercedesSprinter = carModel && carModel.toLowerCase().includes('mercedes') && carModel.toLowerCase().includes('sprinter');
+
+        if (isMercedesSprinter) {
+            if (partName === 'ГРМ (ролики+ремінь) ⚙️') {
+                return 'good';
+            }
+            if (partName === 'Помпа 💧') {
+                if (mileageDiff >= 120000) return 'warning';
+                return 'good';
+            }
         }
-        
-        const data = this.processedCars;
-        const car = data.find(c => c.car === this.state.selectedCar);
 
-        if (!car) {
-            this.state.selectedCar = null;
-            this.render();
-            return;
-        }
-
-        const html = this.generateCarDetailHTML(car);
-        document.getElementById('main-interface').innerHTML = html;
-        
-        // Відновлюємо фокус після рендеру
-        this.restoreFocus();
-    }
-
-    // НОВИЙ метод для збереження фокусу
-    saveFocus() {
-        const activeElement = document.activeElement;
-        if (activeElement && (activeElement.id === 'mainSearchInput' || activeElement.id === 'historySearchInput')) {
-            this.focusInfo = {
-                id: activeElement.id,
-                value: activeElement.value,
-                selectionStart: activeElement.selectionStart,
-                selectionEnd: activeElement.selectionEnd
-            };
-        } else {
-            this.focusInfo = null;
-        }
-    }
-
-    // НОВИЙ метод для відновлення фокусу
-    restoreFocus() {
-        if (this.focusInfo) {
-            setTimeout(() => {
-                const element = document.getElementById(this.focusInfo.id);
-                if (element) {
-                    // Встановлюємо значення, якщо воно змінилося
-                    if (this.focusInfo.id === 'mainSearchInput' && element.value !== this.state.searchTerm) {
-                        element.value = this.state.searchTerm;
-                    } else if (this.focusInfo.id === 'historySearchInput' && element.value !== this.state.historySearchTerm) {
-                        element.value = this.state.historySearchTerm;
-                    }
-                    
-                    element.focus();
-                    element.setSelectionRange(this.focusInfo.selectionStart, this.focusInfo.selectionEnd);
+        switch(partName) {
+            case 'ТО (масло+фільтри) 🛢️':
+                if (carYear && carYear >= 2010) {
+                    if (mileageDiff >= 15500) return 'critical';
+                    if (mileageDiff >= 14000) return 'warning';
+                    return 'good';
+                } else {
+                    if (mileageDiff >= 10500) return 'critical';
+                    if (mileageDiff >= 9000) return 'warning';
+                    return 'good';
                 }
-                this.focusInfo = null;
-            }, 10);
+            case 'ГРМ (ролики+ремінь) ⚙️': case 'Обвідний ремінь+ролики 🔧':
+                if (mileageDiff >= 60500) return 'critical';
+                if (mileageDiff >= 58000) return 'warning';
+                return 'good';
+            case 'Помпа 💧': case 'Зчеплення ⚙️': case 'Стартер 🔋': case 'Генератор ⚡':
+                if (mileageDiff >= 120000) return 'critical';
+                if (mileageDiff >= 80000) return 'warning';
+                return 'good';
+            case 'Діагностика ходової 🔍':
+                if (monthsDiff > 3) return 'critical';
+                if (monthsDiff >= 2) return 'warning';
+                return 'good';
+            case 'Розвал-сходження 📐': case 'Профілактика супортів 🛠️': case "Комп'ютерна діагностика 💻": case 'Прожиг сажового 🔥':
+                if (monthsDiff > 4) return 'critical';
+                if (monthsDiff >= 2) return 'warning';
+                return 'good';
+            case 'Гальмівні колодки 🛑':
+                if (mileageDiff > 80000) return 'critical';
+                if (mileageDiff >= 60000) return 'warning';
+                return 'good';
+            case 'Гальмівні диски 💿': case 'Амортизатори 🔧':
+                if (mileageDiff > 100000) return 'critical';
+                if (mileageDiff >= 70000) return 'warning';
+                return 'good';
+            case 'Опора амортизаторів 🛠️': case 'Шарова опора ⚪': case 'Рульова тяга 🔗': case 'Рульовий накінечник 🔩':
+                if (mileageDiff > 60000) return 'critical';
+                if (mileageDiff >= 50000) return 'warning';
+                return 'good';
+            case 'Акумулятор 🔋':
+                const yearsDiff = daysDiff / 365;
+                if (yearsDiff > 4) return 'critical';
+                if (yearsDiff >= 3) return 'warning';
+                return 'good';
+            default:
+                if (mileageDiff > 50000) return 'critical';
+                if (mileageDiff > 30000) return 'warning';
+                return 'good';
         }
     }
 
-    // НОВІ методи для обробки подій
-    handleSearchInput(event) {
-        this.saveFocus();
-        this.state.searchTerm = event.target.value;
-        
-        if (!this.renderScheduled) {
-            this.renderScheduled = true;
-            setTimeout(() => {
-                this.filteredCars = null;
-                this.renderCarList();
-                this.renderScheduled = false;
-            }, 50);
-        }
-    }
-
-    handleHistorySearchInput(event) {
-        this.saveFocus();
-        this.state.historySearchTerm = event.target.value;
-        
-        if (!this.renderScheduled) {
-            this.renderScheduled = true;
-            setTimeout(() => {
-                this.renderCarDetail();
-                this.renderScheduled = false;
-            }, 50);
-        }
-    }
-
-    handleSelectChange(event) {
-        this.state.selectedCity = event.target.value;
-        this.filteredCars = null;
-        this.renderCarList();
-    }
-
+    // ОНОВЛЕНА функція processCarData - додаємо license до getPartStatus
     processCarData() {
         if (!this.appData) return [];
 
@@ -584,7 +297,7 @@ class CarAnalyticsApp {
             cars[license] = {
                 city: carInfo.city,
                 car: license,
-                license: license,
+                license: license, // додано
                 model: carInfo.model,
                 year: carInfo.year,
                 currentMileage: currentMileages[license] || 0,
@@ -631,6 +344,7 @@ class CarAnalyticsApp {
                         if (months > 0) timeDiff += months + 'міс';
                         if (!timeDiff) timeDiff = daysDiff + 'дн';
 
+                        // ОНОВЛЕНО: передаємо license до getPartStatus
                         car.parts[partName] = {
                             date: record.date,
                             mileage: record.mileage,
@@ -638,7 +352,7 @@ class CarAnalyticsApp {
                             mileageDiff: mileageDiff,
                             timeDiff: timeDiff,
                             daysDiff: daysDiff,
-                            status: this.getPartStatus(partName, mileageDiff, daysDiff, carYear, carModel)
+                            status: this.getPartStatus(partName, mileageDiff, daysDiff, carYear, carModel, car.license)
                         };
                     }
                 }
