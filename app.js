@@ -1697,9 +1697,54 @@ class CarAnalyticsApp {
     }
 
     startAutoRefresh() {
+    console.log('⏰ Налаштовую автооновлення на 06:00 щодня');
+    
+    // Функція для розрахунку часу до наступного оновлення
+    const calculateTimeUntilRefresh = () => {
+        const now = new Date();
+        const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        
+        // Час оновлення (06:00)
+        const refreshTime = new Date(today);
+        const [hours, minutes] = window.CONFIG.REFRESH_TIME.split(':').map(Number);
+        refreshTime.setHours(hours, minutes, 0, 0);
+        
+        // Якщо вже після 06:00 сьогодні, то оновлюємо завтра
+        if (now >= refreshTime) {
+            refreshTime.setDate(refreshTime.getDate() + 1);
+        }
+        
+        const timeUntilRefresh = refreshTime - now;
+        console.log(`⏰ Наступне оновлення о ${window.CONFIG.REFRESH_TIME} (через ${Math.round(timeUntilRefresh / 1000 / 60)} хвилин)`);
+        
+        return timeUntilRefresh;
+    };
+    
+    // Перше оновлення
+    const firstRefreshDelay = calculateTimeUntilRefresh();
+    setTimeout(() => {
+        console.log('🔄 Автоматичне оновлення за розкладом (06:00)');
+        this.refreshData();
+        
+        // Налаштовуємо щоденне оновлення
         setInterval(() => {
+            console.log('🔄 Автоматичне оновлення за розкладом (06:00)');
             this.refreshData();
-        }, window.CONFIG.REFRESH_INTERVAL * 60 * 1000);
+        }, 24 * 60 * 60 * 1000); // 24 години
+    }, firstRefreshDelay);
+    
+    // Також додамо щоденну перевірку часу на випадок втрати таймеру
+    setInterval(() => {
+        const now = new Date();
+        const currentHour = now.getHours();
+        const currentMinute = now.getMinutes();
+        
+        // Перевіряємо чи зараз 06:00
+        if (currentHour === 6 && currentMinute === 0) {
+            console.log('🔄 Автоматичне оновлення за розкладом (перевірка часу)');
+            this.refreshData();
+        }
+    }, 60000); // Перевіряємо кожну хвилину
     }
 
     showNotification(message, type = 'info') {
