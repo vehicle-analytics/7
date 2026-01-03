@@ -1,6 +1,6 @@
 /**
  * 🚗 Аналітична панель відстеження запчастин
- * Версія 5.0 - Розширені регламенти з патернами авто
+ * Версія 6.0 - Щоденне оновлення о 06:00
  */
 
 class CarAnalyticsApp {
@@ -9,7 +9,7 @@ class CarAnalyticsApp {
         this.cachedData = null;
         this.processedCars = null;
         this.filteredCars = null;
-        this.maintenanceRegulations = []; // НОВЕ: список регламентів
+        this.maintenanceRegulations = [];
         
         this.state = {
             searchTerm: '',
@@ -46,24 +46,20 @@ class CarAnalyticsApp {
         this.startAutoRefresh();
     }
 
-    // ВИПРАВЛЕНА функція для парсингу чисел
     parseNumber(value) {
         if (value === null || value === undefined || value === '') {
             return 0;
         }
         
-        // Якщо вже число
         if (typeof value === 'number') {
             return isNaN(value) ? 0 : value;
         }
         
-        // Конвертуємо в рядок і очищаємо
         const cleanStr = String(value)
             .trim()
-            .replace(/\s+/g, '') // Видаляємо всі пробіли
-            .replace(/,/g, '.'); // Замінюємо коми на крапки
+            .replace(/\s+/g, '')
+            .replace(/,/g, '.');
         
-        // Перевіряємо чи це не текстовий "ланцюг"
         if (cleanStr.toLowerCase() === 'ланцюг') {
             return 'chain';
         }
@@ -224,10 +220,8 @@ class CarAnalyticsApp {
             throw new Error('Немає даних для обробки');
         }
 
-        // 1. Обробляємо регламенти
         this.processRegulations(regulationsData);
 
-        // 2. Обробляємо основні дані
         const carsInfo = {};
         const carCities = {};
 
@@ -339,7 +333,6 @@ class CarAnalyticsApp {
 
         const regulations = [];
         
-        // Простий парсинг - припускаємо стандартний порядок колонок
         for (let i = 1; i < regulationsData.length; i++) {
             const row = regulationsData[i];
             if (row.length < 5) continue;
@@ -362,7 +355,6 @@ class CarAnalyticsApp {
             regulations.push(regulation);
         }
 
-        // Сортуємо за пріоритетом (нижчий пріоритет = вищий)
         regulations.sort((a, b) => a.priority - b.priority);
         
         this.maintenanceRegulations = regulations;
@@ -412,10 +404,10 @@ class CarAnalyticsApp {
             const data = JSON.parse(cached);
             const cacheTime = new Date(data.lastUpdated).getTime();
             const currentTime = Date.now();
-            const maxAge = 5 * 60 * 1000;
+            const maxAge = 24 * 60 * 60 * 1000; // 24 години
 
             if (currentTime - cacheTime > maxAge) {
-                console.log(`⚠️ Кеш застарів (${Math.floor((currentTime - cacheTime) / 1000 / 60)} хв)`);
+                console.log(`⚠️ Кеш застарів (${Math.floor((currentTime - cacheTime) / 1000 / 60 / 60)} годин)`);
                 return null;
             }
 
@@ -458,12 +450,54 @@ class CarAnalyticsApp {
             if (cacheTime) {
                 const time = new Date(cacheTime);
                 const now = new Date();
-                const diffMinutes = Math.floor((now - time) / (1000 * 60));
-                console.log(`⏰ Кеш оновлено ${diffMinutes} хвилин тому`);
+                const diffHours = Math.floor((now - time) / (1000 * 60 * 60));
+                const diffMinutes = Math.floor((now - time) / (1000 * 60)) % 60;
+                console.log(`⏰ Кеш оновлено ${diffHours} годин ${diffMinutes} хвилин тому`);
             }
         } catch (error) {
             // Ігноруємо помилки
         }
+    }
+
+    startAutoRefresh() {
+        console.log('⏰ Налаштовую щоденне автооновлення на 06:00');
+        
+        // Функція для розрахунку часу до наступного оновлення
+        const calculateTimeUntilRefresh = () => {
+            const now = new Date();
+            const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            
+            // Час оновлення (06:00)
+            const refreshTime = new Date(today);
+            const [hours, minutes] = window.CONFIG.REFRESH_TIME.split(':').map(Number);
+            refreshTime.setHours(hours, minutes, 0, 0);
+            
+            // Якщо вже після 06:00 сьогодні, то оновлюємо завтра
+            if (now >= refreshTime) {
+                refreshTime.setDate(refreshTime.getDate() + 1);
+            }
+            
+            const timeUntilRefresh = refreshTime - now;
+            const hoursUntil = Math.floor(timeUntilRefresh / (1000 * 60 * 60));
+            const minutesUntil = Math.floor((timeUntilRefresh % (1000 * 60 * 60)) / (1000 * 60));
+            
+            console.log(`⏰ Наступне оновлення о ${window.CONFIG.REFRESH_TIME} (через ${hoursUntil}г ${minutesUntil}хв)`);
+            
+            return timeUntilRefresh;
+        };
+        
+        // Перше оновлення
+        const firstRefreshDelay = calculateTimeUntilRefresh();
+        setTimeout(() => {
+            console.log('🔄 Автоматичне оновлення за розкладом (06:00)');
+            this.refreshData();
+            
+            // Налаштовуємо щоденне оновлення
+            setInterval(() => {
+                console.log('🔄 Автоматичне оновлення за розкладом (06:00)');
+                this.refreshData();
+            }, 24 * 60 * 60 * 1000); // 24 години
+        }, firstRefreshDelay);
     }
 
     render() {
@@ -699,7 +733,6 @@ class CarAnalyticsApp {
         return sortedCars;
     }
 
-    // НОВА функція для пошуку регламенту для конкретного авто
     findRegulationForCar(license, model, year, partName) {
         if (!this.maintenanceRegulations || this.maintenanceRegulations.length === 0) {
             return null;
@@ -707,19 +740,15 @@ class CarAnalyticsApp {
 
         const carYear = parseInt(year) || 0;
         
-        // Конвертуємо назву запчастини з формату сайту в формат таблиці
         const mappedPartName = CONSTANTS.PARTS_MAPPING[partName] || partName;
         
         for (const regulation of this.maintenanceRegulations) {
-            // Перевіряємо чи відповідає регламент деталі
             if (regulation.partName !== mappedPartName) continue;
             
-            // Перевіряємо номер авто (паттерн)
             if (regulation.licensePattern !== '*') {
                 if (regulation.licensePattern !== license) continue;
             }
             
-            // Перевіряємо марку (регулярний вираз)
             if (regulation.brandPattern !== '*') {
                 try {
                     const brandRegex = new RegExp(regulation.brandPattern, 'i');
@@ -730,7 +759,6 @@ class CarAnalyticsApp {
                 }
             }
             
-            // Перевіряємо модель (регулярний вираз)
             if (regulation.modelPattern !== '*') {
                 try {
                     const modelRegex = new RegExp(regulation.modelPattern, 'i');
@@ -741,49 +769,39 @@ class CarAnalyticsApp {
                 }
             }
             
-            // Перевіряємо рік
             if (carYear < regulation.yearFrom || carYear > regulation.yearTo) continue;
             
-            // Знайшли відповідний регламент
             return regulation;
         }
         
         return null;
     }
 
-    // ОНОВЛЕНА функція для визначення статусу
     getPartStatus(partName, mileageDiff, daysDiff, carYear, carModel, license) {
         const monthsDiff = daysDiff / 30;
         const yearsDiff = daysDiff / 365;
         
-        // Шукаємо регламент для цього авто та деталі
         const regulation = this.findRegulationForCar(license, carModel, carYear, partName);
         
         if (regulation) {
-            // Якщо знайшли регламент - використовуємо його
             if (regulation.normalValue === 'chain') {
-                // Для ланцюга ГРМ - завжди "У нормі"
                 return 'good';
             }
             
-            // Визначаємо значення в залежності від типу періоду
             let currentValue;
             if (regulation.periodType === 'місяць') {
                 currentValue = monthsDiff;
             } else if (regulation.periodType === 'рік') {
                 currentValue = yearsDiff;
             } else {
-                // Пробіг за замовчуванням
                 currentValue = mileageDiff;
             }
             
-            // Перевіряємо чи є значення для порівняння
             if (regulation.criticalValue && currentValue >= regulation.criticalValue) return 'critical';
             if (regulation.warningValue && currentValue >= regulation.warningValue) return 'warning';
             if (regulation.normalValue !== undefined && regulation.normalValue !== null) return 'good';
         }
         
-        // Якщо не знайшли регламент - використовуємо старі правила
         return this.getPartStatusLegacy(partName, mileageDiff, daysDiff, carYear, carModel);
     }
 
@@ -929,40 +947,42 @@ class CarAnalyticsApp {
     }
 
     generateCarListHTML(allCars, filteredCars, cities, stats) {
-    // Розрахунок часу до наступного оновлення
-    const now = new Date();
-    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const refreshTime = new Date(today);
-    const [hours, minutes] = window.CONFIG.REFRESH_TIME.split(':').map(Number);
-    refreshTime.setHours(hours, minutes, 0, 0);
-    
-    if (now >= refreshTime) {
-        refreshTime.setDate(refreshTime.getDate() + 1);
-    }
-    
-    const hoursUntil = Math.floor((refreshTime - now) / (1000 * 60 * 60));
-    const minutesUntil = Math.floor(((refreshTime - now) % (1000 * 60 * 60)) / (1000 * 60));
-    
-    const nextRefreshInfo = `Наступне оновлення: ${window.CONFIG.REFRESH_TIME} (через ${hoursUntil}г ${minutesUntil}хв)`;
+        const importantParts = CONSTANTS.PARTS_ORDER.slice(0, 7);
 
-    return `
-        <div class="min-h-screen bg-gray-50">
-            <div class="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-b-xl shadow-xl p-4 mb-6">
-                <div class="w-full px-2 sm:px-4">
-                    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                        <div>
-                            <h1 class="text-2xl sm:text-3xl font-bold text-white mb-1">🚗 Список автомобілів</h1>
-                            <p class="text-blue-100 text-sm">Натисніть на рядок для перегляду деталей</p>
-                        </div>
-                        <div class="text-right">
-                            <div class="text-blue-100 text-xs">Дата оновлення</div>
-                            <div class="text-white text-lg font-bold">${this.appData.currentDate}</div>
-                            <div class="text-blue-200 text-xs">${allCars.length} авто • ${this.appData._meta.totalRecords} записів</div>
-                            <div class="text-blue-100 text-xs mt-1">${nextRefreshInfo}</div>
+        // Розрахунок часу до наступного оновлення
+        const now = new Date();
+        const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        const refreshTime = new Date(today);
+        const [hours, minutes] = window.CONFIG.REFRESH_TIME.split(':').map(Number);
+        refreshTime.setHours(hours, minutes, 0, 0);
+        
+        if (now >= refreshTime) {
+            refreshTime.setDate(refreshTime.getDate() + 1);
+        }
+        
+        const hoursUntil = Math.floor((refreshTime - now) / (1000 * 60 * 60));
+        const minutesUntil = Math.floor(((refreshTime - now) % (1000 * 60 * 60)) / (1000 * 60));
+        
+        const nextRefreshInfo = `Наступне оновлення: ${window.CONFIG.REFRESH_TIME} (через ${hoursUntil}г ${minutesUntil}хв)`;
+
+        return `
+            <div class="min-h-screen bg-gray-50">
+                <div class="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-b-xl shadow-xl p-4 mb-6">
+                    <div class="w-full px-2 sm:px-4">
+                        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                            <div>
+                                <h1 class="text-2xl sm:text-3xl font-bold text-white mb-1">🚗 Список автомобілів</h1>
+                                <p class="text-blue-100 text-sm">Натисніть на рядок для перегляду деталей</p>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-blue-100 text-xs">Дата оновлення</div>
+                                <div class="text-white text-lg font-bold">${this.appData.currentDate}</div>
+                                <div class="text-blue-200 text-xs">${allCars.length} авто • ${this.appData._meta.totalRecords} записів</div>
+                                <div class="text-blue-100 text-xs mt-1">${nextRefreshInfo}</div>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
 
                 <div class="w-full px-3 sm:px-4">
                     <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
@@ -1709,57 +1729,6 @@ class CarAnalyticsApp {
             console.error('❌ Помилка оновлення:', error);
             this.showNotification('Помилка оновлення даних: ' + error.message, 'error');
         }
-    }
-
-    startAutoRefresh() {
-    console.log('⏰ Налаштовую автооновлення на 06:00 щодня');
-    
-    // Функція для розрахунку часу до наступного оновлення
-    const calculateTimeUntilRefresh = () => {
-        const now = new Date();
-        const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-        
-        // Час оновлення (06:00)
-        const refreshTime = new Date(today);
-        const [hours, minutes] = window.CONFIG.REFRESH_TIME.split(':').map(Number);
-        refreshTime.setHours(hours, minutes, 0, 0);
-        
-        // Якщо вже після 06:00 сьогодні, то оновлюємо завтра
-        if (now >= refreshTime) {
-            refreshTime.setDate(refreshTime.getDate() + 1);
-        }
-        
-        const timeUntilRefresh = refreshTime - now;
-        console.log(`⏰ Наступне оновлення о ${window.CONFIG.REFRESH_TIME} (через ${Math.round(timeUntilRefresh / 1000 / 60)} хвилин)`);
-        
-        return timeUntilRefresh;
-    };
-    
-    // Перше оновлення
-    const firstRefreshDelay = calculateTimeUntilRefresh();
-    setTimeout(() => {
-        console.log('🔄 Автоматичне оновлення за розкладом (06:00)');
-        this.refreshData();
-        
-        // Налаштовуємо щоденне оновлення
-        setInterval(() => {
-            console.log('🔄 Автоматичне оновлення за розкладом (06:00)');
-            this.refreshData();
-        }, 24 * 60 * 60 * 1000); // 24 години
-    }, firstRefreshDelay);
-    
-    // Також додамо щоденну перевірку часу на випадок втрати таймеру
-    setInterval(() => {
-        const now = new Date();
-        const currentHour = now.getHours();
-        const currentMinute = now.getMinutes();
-        
-        // Перевіряємо чи зараз 06:00
-        if (currentHour === 6 && currentMinute === 0) {
-            console.log('🔄 Автоматичне оновлення за розкладом (перевірка часу)');
-            this.refreshData();
-        }
-    }, 60000); // Перевіряємо кожну хвилину
     }
 
     showNotification(message, type = 'info') {
